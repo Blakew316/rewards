@@ -1,8 +1,9 @@
 /* WPI Rewards — service worker: precache the app shell, serve cache-first. */
-const VERSION = "wpi-rewards-v1";
+const VERSION = "wpi-rewards-v2";
 const ASSETS = [
   "./",
   "./index.html",
+  "./demo.html",
   "./rewards.html",
   "./earnings.html",
   "./orders.html",

@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Rewards Catalog — WPI Rewards</title>
-  <meta name="description" content="Browse gift cards, merchandise, travel packages and luxury goods redeemable with your reward points.">
+  <title>Demo — WPI Rewards</title>
+  <meta name="description" content="A quick interactive demo of how WPI Rewards turns everyday card sales into redeemable points.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='5' y='13' width='9' height='40' rx='4.5' fill='%231e88f7'/%3E%3Crect x='19' y='5' width='19' height='54' rx='6' fill='%2317b060'/%3E%3Crect x='19' y='5' width='19' height='19' rx='6' fill='%232196f3'/%3E%3Crect x='43' y='17' width='9' height='40' rx='4.5' fill='%2335d07a'/%3E%3C/svg%3E">
   <meta name="theme-color" content="#ffffff">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,7 +15,7 @@
   <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body data-page="catalog">
+<body data-page="demo">
   <header class="site-header">
     <nav class="nav" aria-label="Primary">
       <a class="brand" href="index.html">
@@ -26,10 +26,10 @@
       </a>
       <div class="nav__links">
         <a class="nav__link" href="index.html">Dashboard</a>
-        <a class="nav__link" href="rewards.html" aria-current="page">Rewards</a>
+        <a class="nav__link" href="rewards.html">Rewards</a>
         <a class="nav__link" href="earnings.html">Earnings</a>
         <a class="nav__link" href="orders.html">Orders</a>
-        <a class="nav__link" href="demo.html">Demo</a>
+        <a class="nav__link" href="demo.html" aria-current="page">Demo</a>
       </div>
       <div class="nav__actions">
         <a class="points-chip" href="earnings.html" data-points-chip title="Available points"></a>
@@ -69,51 +69,84 @@
   </div>
 
   <main id="main">
-
-    <div class="container page">
-      <div class="page-head" data-reveal>
-        <div>
-          <p class="eyebrow">Catalog</p>
-          <h1 class="h1" style="margin-top:8px">Rewards Catalog</h1>
-          <p class="lead" style="margin-top:10px">Gift cards, merchandise, travel and luxury goods — all redeemable with points.</p>
-        </div>
-        <a class="points-chip" href="earnings.html" data-points-chip title="Available points"></a>
+    <div class="container page container--narrow">
+      <div class="page-head" data-reveal style="text-align:center;display:block">
+        <p class="eyebrow">Interactive demo</p>
+        <h1 class="h1" style="margin-top:8px">See How Rewards Work</h1>
+        <p class="lead" style="margin-top:10px">Thirty seconds, three steps — run a few sales, watch points settle, redeem a reward.</p>
       </div>
-    </div>
 
-    <div class="toolbar">
-      <div class="container toolbar__inner">
-        <div class="seg" role="group" aria-label="Category">
-          <button class="seg__btn" data-cat="all" aria-pressed="true">All Rewards</button>
-          <button class="seg__btn" data-cat="gift" aria-pressed="false">Gift Cards</button>
-          <button class="seg__btn" data-cat="merch" aria-pressed="false">Merchandise</button>
-          <button class="seg__btn" data-cat="travel" aria-pressed="false">Travel</button>
-          <button class="seg__btn" data-cat="luxury" aria-pressed="false">Luxury</button>
+      <section class="card glow demo-shell" data-reveal aria-label="Interactive rewards demo">
+        <div class="demo-balances" aria-live="polite">
+          <div class="demo-balance"><span class="dot" style="background:var(--viz-2)"></span>Pending <b class="tabular" data-demo-pending>0</b></div>
+          <div class="demo-balance"><span class="dot" style="background:var(--viz-1)"></span>Available <b class="tabular" data-demo-available>0</b></div>
         </div>
-        <div class="toolbar__spacer"></div>
-        <label class="switch">
-          <input type="checkbox" data-afford>
-          <i aria-hidden="true"></i>
-          Within my points
-        </label>
-        <div class="search">
-          <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="m15.6 15.6 4.6 4.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
-          <input type="search" placeholder="Search rewards" aria-label="Search rewards" data-search>
+
+        <!-- Step 1: run sales -->
+        <div class="demo-step is-active" data-demo-step="1">
+          <div class="demo-stage">
+            <div class="pos">
+              <div class="pos__terminal">
+                <div class="pos__screen" data-demo-screen>Ready</div>
+                <div class="pos__keys"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              </div>
+              <div class="pos__card" data-demo-card>
+                <span class="pos__chip"></span>
+                <span class="pos__num">•••• 4629</span>
+              </div>
+            </div>
+          </div>
+          <h2 class="h3">1 · Your customers pay like always</h2>
+          <p class="demo-copy">Every card sale you process earns points automatically — nothing extra at the terminal.</p>
+          <div class="btn-row" style="justify-content:center">
+            <button class="btn btn--primary" data-demo-sale>Run a Sale</button>
+            <button class="btn btn--ghost" data-demo-next1 disabled>Next</button>
+          </div>
         </div>
-        <select class="select-pill" data-sort aria-label="Sort rewards">
-          <option value="match">Best match</option>
-          <option value="low">Points: low to high</option>
-          <option value="high">Points: high to low</option>
-          <option value="name">Name A–Z</option>
-        </select>
-      </div>
-    </div>
 
-    <div class="container" style="padding-bottom:clamp(56px,7vw,88px)">
-      <p class="count-note" data-count aria-live="polite"></p>
-      <div class="products" data-products></div>
-    </div>
+        <!-- Step 2: settle -->
+        <div class="demo-step" data-demo-step="2">
+          <div class="demo-stage">
+            <div class="demo-buckets">
+              <div class="demo-bucket" data-bucket-pending>
+                <span class="demo-bucket__label">Pending</span>
+                <b class="tabular" data-bucket-pending-n>0</b>
+              </div>
+              <div class="demo-flow" data-demo-flow aria-hidden="true"></div>
+              <div class="demo-bucket demo-bucket--avail" data-bucket-avail>
+                <span class="demo-bucket__label">Available</span>
+                <b class="tabular" data-bucket-avail-n>0</b>
+              </div>
+            </div>
+          </div>
+          <h2 class="h3">2 · Points settle with your batches</h2>
+          <p class="demo-copy">New points sit as Pending while the card batches clear, then become Available on their own.</p>
+          <div class="btn-row" style="justify-content:center">
+            <button class="btn btn--primary" data-demo-settle>Settle the Batch</button>
+            <button class="btn btn--ghost" data-demo-next2 disabled>Next</button>
+          </div>
+        </div>
 
+        <!-- Step 3: redeem -->
+        <div class="demo-step" data-demo-step="3">
+          <div class="demo-stage">
+            <div class="demo-rewards" data-demo-rewards></div>
+          </div>
+          <h2 class="h3">3 · Spend points on real rewards</h2>
+          <p class="demo-copy" data-demo-copy3>Pick any reward you can afford — gift cards, merchandise, even travel.</p>
+          <div class="btn-row" style="justify-content:center" data-demo-finish hidden>
+            <a class="btn btn--primary" href="rewards.html">Browse the Real Catalog</a>
+            <button class="btn btn--ghost" data-demo-restart>Replay Demo</button>
+          </div>
+        </div>
+
+        <div class="demo-dots" role="tablist" aria-label="Demo steps">
+          <span class="is-on" data-dot="1"></span><span data-dot="2"></span><span data-dot="3"></span>
+        </div>
+      </section>
+
+      <p class="fine" style="text-align:center;margin-top:16px" data-reveal>Amounts are illustrative and sped up for the demo — your real rate is applied to every processed transaction.</p>
+    </div>
   </main>
 
   <footer class="site-footer">

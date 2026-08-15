@@ -795,6 +795,186 @@
   }
 
   /* ------------------------------------------------------------------
+     Page: Demo — three-step interactive walkthrough
+     ------------------------------------------------------------------ */
+  function pageDemo() {
+    const shell = $(".demo-shell");
+    if (!shell) return;
+
+    const state = { pending: 0, available: 0, sales: 0, step: 1 };
+    const pendingEl = $("[data-demo-pending]");
+    const availableEl = $("[data-demo-available]");
+
+    const DEMO_REWARDS = [
+      { id: "coffee", name: "Coffee for the Team", pts: 60, icon: "gift" },
+      { id: "gc", name: "$25 Gift Card", pts: 120, icon: "gift" },
+      { id: "lunch", name: "Team Lunch Out", pts: 200, icon: "star" },
+    ];
+
+    function syncBalances(bump) {
+      pendingEl.textContent = D.fmt.format(state.pending);
+      availableEl.textContent = D.fmt.format(state.available);
+      if (bump) {
+        [pendingEl, availableEl].forEach((el) => {
+          const wrap = el.closest(".demo-balance");
+          wrap.classList.remove("bump");
+          void wrap.offsetWidth;
+          wrap.classList.add("bump");
+        });
+      }
+    }
+
+    function goStep(n) {
+      state.step = n;
+      $$(".demo-step", shell).forEach((s) =>
+        s.classList.toggle("is-active", s.getAttribute("data-demo-step") === String(n)));
+      $$(".demo-dots span", shell).forEach((d) => {
+        const i = Number(d.getAttribute("data-dot"));
+        d.classList.toggle("is-on", i === n);
+        d.classList.toggle("is-done", i < n);
+      });
+      if (n === 2) {
+        $("[data-bucket-pending-n]").textContent = D.fmt.format(state.pending);
+        $("[data-bucket-avail-n]").textContent = D.fmt.format(state.available);
+      }
+      if (n === 3) renderDemoRewards();
+    }
+
+    /* Step 1 — run sales */
+    const saleBtn = $("[data-demo-sale]");
+    const next1 = $("[data-demo-next1]");
+    const card = $("[data-demo-card]");
+    const screen = $("[data-demo-screen]");
+
+    saleBtn.addEventListener("click", () => {
+      if (saleBtn.disabled) return;
+      saleBtn.disabled = true;
+      const amount = 80 + Math.round(Math.random() * 42) * 10;
+      const pts = Math.max(15, Math.round(amount * 0.2));
+      card.classList.add("is-tapping");
+      screen.textContent = D.fmtUsd.format(amount).replace(".00", "");
+      setTimeout(() => {
+        screen.textContent = "Approved ✓";
+        screen.classList.add("is-ok");
+        const chip = document.createElement("span");
+        chip.className = "points-fly";
+        chip.textContent = "+" + pts + " pts";
+        chip.style.left = "50%";
+        chip.style.top = "30%";
+        $(".demo-stage", $('[data-demo-step="1"]')).appendChild(chip);
+        setTimeout(() => chip.remove(), 1150);
+        state.pending += pts;
+        state.sales += 1;
+        syncBalances(true);
+      }, 520);
+      setTimeout(() => {
+        card.classList.remove("is-tapping");
+        screen.textContent = "Ready";
+        screen.classList.remove("is-ok");
+        saleBtn.disabled = false;
+        if (state.sales >= 2) {
+          next1.disabled = false;
+          saleBtn.textContent = "Run Another Sale";
+        }
+      }, 1350);
+    });
+    next1.addEventListener("click", () => goStep(2));
+
+    /* Step 2 — settle */
+    const settleBtn = $("[data-demo-settle]");
+    const next2 = $("[data-demo-next2]");
+    settleBtn.addEventListener("click", () => {
+      if (settleBtn.disabled) return;
+      settleBtn.disabled = true;
+      const flow = $("[data-demo-flow]");
+      const moving = state.pending;
+      const DOTS = 7;
+      for (let i = 0; i < DOTS; i++) {
+        setTimeout(() => {
+          const dot = document.createElement("i");
+          flow.appendChild(dot);
+          setTimeout(() => dot.remove(), 720);
+        }, i * 110);
+      }
+      const start = performance.now();
+      const dur = 900;
+      const tick = (now) => {
+        const t = Math.min(1, (now - start) / dur);
+        const eased = 1 - Math.pow(1 - t, 3);
+        const moved = Math.round(moving * eased);
+        $("[data-bucket-pending-n]").textContent = D.fmt.format(moving - moved);
+        $("[data-bucket-avail-n]").textContent = D.fmt.format(state.available + moved);
+        if (t < 1) requestAnimationFrame(tick);
+        else {
+          state.available += moving;
+          state.pending = 0;
+          syncBalances(true);
+          next2.disabled = false;
+          settleBtn.textContent = "Batch Settled ✓";
+        }
+      };
+      requestAnimationFrame(tick);
+    });
+    next2.addEventListener("click", () => goStep(3));
+
+    /* Step 3 — redeem */
+    function renderDemoRewards() {
+      const host = $("[data-demo-rewards]");
+      host.innerHTML = DEMO_REWARDS.map((r) =>
+        '<button class="demo-reward" data-reward="' + r.id + '"' +
+        (r.pts > state.available ? " disabled" : "") + ">" +
+        '<span class="demo-reward__icon">' + svgIcon(r.icon, 22) + "</span>" +
+        "<b>" + r.name + "</b><span>" + r.pts + " pts</span></button>"
+      ).join("");
+      host.onclick = (e) => {
+        const btn = e.target.closest("[data-reward]");
+        if (!btn || btn.disabled) return;
+        const r = DEMO_REWARDS.find((x) => x.id === btn.getAttribute("data-reward"));
+        state.available -= r.pts;
+        syncBalances(true);
+        btn.classList.add("is-won");
+        $$("[data-reward]", host).forEach((b) => { if (b !== btn) b.disabled = true; });
+        confettiBurst(shell);
+        $("[data-demo-copy3]").textContent =
+          "Redeemed! In the real portal your reward ships or arrives by email — and you keep earning on every sale.";
+        $("[data-demo-finish]").hidden = false;
+      };
+    }
+
+    function confettiBurst(host) {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      const colors = ["#1e88f7", "#35d07a", "#16255f", "#8ce6a1", "#ffd977"];
+      for (let i = 0; i < 26; i++) {
+        const c = document.createElement("i");
+        c.className = "confetti";
+        c.style.left = 8 + Math.random() * 84 + "%";
+        c.style.background = colors[i % colors.length];
+        c.style.animationDelay = Math.random() * 260 + "ms";
+        c.style.animationDuration = 1100 + Math.random() * 700 + "ms";
+        host.appendChild(c);
+        setTimeout(() => c.remove(), 2400);
+      }
+    }
+
+    /* Restart */
+    $("[data-demo-restart]").addEventListener("click", () => {
+      state.pending = 0; state.available = 0; state.sales = 0;
+      syncBalances(false);
+      saleBtn.textContent = "Run a Sale";
+      saleBtn.disabled = false;
+      next1.disabled = true;
+      settleBtn.textContent = "Settle the Batch";
+      settleBtn.disabled = false;
+      next2.disabled = true;
+      $("[data-demo-finish]").hidden = true;
+      $("[data-demo-copy3]").textContent = "Pick any reward you can afford — gift cards, merchandise, even travel.";
+      goStep(1);
+    });
+
+    syncBalances(false);
+  }
+
+  /* ------------------------------------------------------------------
      Page: Profile
      ------------------------------------------------------------------ */
   function pageProfile() {
@@ -822,6 +1002,7 @@
     if (page === "orders") pageOrders();
     if (page === "cart") pageCart();
     if (page === "profile") pageProfile();
+    if (page === "demo") pageDemo();
 
     // After page renderers, so dynamically inserted content is observed too.
     initReveals();
