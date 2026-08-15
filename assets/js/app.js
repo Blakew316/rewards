@@ -795,15 +795,21 @@
   }
 
   /* ------------------------------------------------------------------
-     Page: Demo — three-step interactive walkthrough
+     Page: Demo — hands-free animated walkthrough
      ------------------------------------------------------------------ */
   function pageDemo() {
     const shell = $(".demo-shell");
     if (!shell) return;
 
-    const state = { pending: 0, available: 0, sales: 0, step: 1 };
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const sleep = (ms) => new Promise((r) => setTimeout(r, reduce ? Math.min(ms, 90) : ms));
+    const state = { pending: 0, available: 0 };
+    let running = false;
+
     const pendingEl = $("[data-demo-pending]");
     const availableEl = $("[data-demo-available]");
+    const card = $("[data-demo-card]");
+    const screen = $("[data-demo-screen]");
 
     const DEMO_REWARDS = [
       { id: "coffee", name: "Coffee for the Team", pts: 60, icon: "gift" },
@@ -825,7 +831,6 @@
     }
 
     function goStep(n) {
-      state.step = n;
       $$(".demo-step", shell).forEach((s) =>
         s.classList.toggle("is-active", s.getAttribute("data-demo-step") === String(n)));
       $$(".demo-dots span", shell).forEach((d) => {
@@ -833,116 +838,74 @@
         d.classList.toggle("is-on", i === n);
         d.classList.toggle("is-done", i < n);
       });
-      if (n === 2) {
-        $("[data-bucket-pending-n]").textContent = D.fmt.format(state.pending);
-        $("[data-bucket-avail-n]").textContent = D.fmt.format(state.available);
-      }
-      if (n === 3) renderDemoRewards();
     }
 
-    /* Step 1 — run sales */
-    const saleBtn = $("[data-demo-sale]");
-    const next1 = $("[data-demo-next1]");
-    const card = $("[data-demo-card]");
-    const screen = $("[data-demo-screen]");
-
-    saleBtn.addEventListener("click", () => {
-      if (saleBtn.disabled) return;
-      saleBtn.disabled = true;
+    async function runSale() {
       const amount = 80 + Math.round(Math.random() * 42) * 10;
       const pts = Math.max(15, Math.round(amount * 0.2));
-      card.classList.add("is-tapping");
       screen.textContent = D.fmtUsd.format(amount).replace(".00", "");
-      setTimeout(() => {
-        screen.textContent = "Approved ✓";
-        screen.classList.add("is-ok");
-        const chip = document.createElement("span");
-        chip.className = "points-fly";
-        chip.textContent = "+" + pts + " pts";
-        chip.style.left = "50%";
-        chip.style.top = "30%";
-        $(".demo-stage", $('[data-demo-step="1"]')).appendChild(chip);
-        setTimeout(() => chip.remove(), 1150);
-        state.pending += pts;
-        state.sales += 1;
-        syncBalances(true);
-      }, 520);
-      setTimeout(() => {
-        card.classList.remove("is-tapping");
-        screen.textContent = "Ready";
-        screen.classList.remove("is-ok");
-        saleBtn.disabled = false;
-        if (state.sales >= 2) {
-          next1.disabled = false;
-          saleBtn.textContent = "Run Another Sale";
-        }
-      }, 1350);
-    });
-    next1.addEventListener("click", () => goStep(2));
-
-    /* Step 2 — settle */
-    const settleBtn = $("[data-demo-settle]");
-    const next2 = $("[data-demo-next2]");
-    settleBtn.addEventListener("click", () => {
-      if (settleBtn.disabled) return;
-      settleBtn.disabled = true;
-      const flow = $("[data-demo-flow]");
-      const moving = state.pending;
-      const DOTS = 7;
-      for (let i = 0; i < DOTS; i++) {
-        setTimeout(() => {
-          const dot = document.createElement("i");
-          flow.appendChild(dot);
-          setTimeout(() => dot.remove(), 720);
-        }, i * 110);
-      }
-      const start = performance.now();
-      const dur = 900;
-      const tick = (now) => {
-        const t = Math.min(1, (now - start) / dur);
-        const eased = 1 - Math.pow(1 - t, 3);
-        const moved = Math.round(moving * eased);
-        $("[data-bucket-pending-n]").textContent = D.fmt.format(moving - moved);
-        $("[data-bucket-avail-n]").textContent = D.fmt.format(state.available + moved);
-        if (t < 1) requestAnimationFrame(tick);
-        else {
-          state.available += moving;
-          state.pending = 0;
-          syncBalances(true);
-          next2.disabled = false;
-          settleBtn.textContent = "Batch Settled ✓";
-        }
-      };
-      requestAnimationFrame(tick);
-    });
-    next2.addEventListener("click", () => goStep(3));
-
-    /* Step 3 — redeem */
-    function renderDemoRewards() {
-      const host = $("[data-demo-rewards]");
-      host.innerHTML = DEMO_REWARDS.map((r) =>
-        '<button class="demo-reward" data-reward="' + r.id + '"' +
-        (r.pts > state.available ? " disabled" : "") + ">" +
-        '<span class="demo-reward__icon">' + svgIcon(r.icon, 22) + "</span>" +
-        "<b>" + r.name + "</b><span>" + r.pts + " pts</span></button>"
-      ).join("");
-      host.onclick = (e) => {
-        const btn = e.target.closest("[data-reward]");
-        if (!btn || btn.disabled) return;
-        const r = DEMO_REWARDS.find((x) => x.id === btn.getAttribute("data-reward"));
-        state.available -= r.pts;
-        syncBalances(true);
-        btn.classList.add("is-won");
-        $$("[data-reward]", host).forEach((b) => { if (b !== btn) b.disabled = true; });
-        confettiBurst(shell);
-        $("[data-demo-copy3]").textContent =
-          "Redeemed! In the real portal your reward ships or arrives by email — and you keep earning on every sale.";
-        $("[data-demo-finish]").hidden = false;
-      };
+      await sleep(420);
+      card.classList.add("is-dipping");
+      await sleep(680);
+      screen.textContent = "Approved ✓";
+      screen.classList.add("is-ok");
+      const chip = document.createElement("span");
+      chip.className = "points-fly";
+      chip.textContent = "+" + pts + " pts";
+      chip.style.left = "50%";
+      chip.style.top = "22%";
+      $(".demo-stage", $('[data-demo-step="1"]')).appendChild(chip);
+      setTimeout(() => chip.remove(), 1150);
+      state.pending += pts;
+      syncBalances(true);
+      await sleep(760);
+      card.classList.remove("is-dipping");
+      screen.textContent = "Ready";
+      screen.classList.remove("is-ok");
+      await sleep(420);
     }
 
-    function confettiBurst(host) {
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    function animateSettle() {
+      return new Promise((resolve) => {
+        const flow = $("[data-demo-flow]");
+        const moving = state.pending;
+        for (let i = 0; i < 7; i++) {
+          setTimeout(() => {
+            const dot = document.createElement("i");
+            flow.appendChild(dot);
+            setTimeout(() => dot.remove(), 720);
+          }, i * 110);
+        }
+        const start = performance.now();
+        const dur = reduce ? 90 : 950;
+        const tick = (now) => {
+          const t = Math.min(1, (now - start) / dur);
+          const eased = 1 - Math.pow(1 - t, 3);
+          const moved = Math.round(moving * eased);
+          $("[data-bucket-pending-n]").textContent = D.fmt.format(moving - moved);
+          $("[data-bucket-avail-n]").textContent = D.fmt.format(state.available + moved);
+          if (t < 1) requestAnimationFrame(tick);
+          else {
+            state.available += moving;
+            state.pending = 0;
+            syncBalances(true);
+            resolve();
+          }
+        };
+        requestAnimationFrame(tick);
+      });
+    }
+
+    function renderDemoRewards() {
+      $("[data-demo-rewards]").innerHTML = DEMO_REWARDS.map((r) =>
+        '<div class="demo-reward' + (r.pts > state.available ? " is-dim" : "") + '" data-reward="' + r.id + '">' +
+        '<span class="demo-reward__icon">' + svgIcon(r.icon, 22) + "</span>" +
+        "<b>" + r.name + "</b><span>" + r.pts + " pts</span></div>"
+      ).join("");
+    }
+
+    function confettiBurst() {
+      if (reduce) return;
       const colors = ["#1e88f7", "#35d07a", "#16255f", "#8ce6a1", "#ffd977"];
       for (let i = 0; i < 26; i++) {
         const c = document.createElement("i");
@@ -951,25 +914,69 @@
         c.style.background = colors[i % colors.length];
         c.style.animationDelay = Math.random() * 260 + "ms";
         c.style.animationDuration = 1100 + Math.random() * 700 + "ms";
-        host.appendChild(c);
+        shell.appendChild(c);
         setTimeout(() => c.remove(), 2400);
       }
     }
 
-    /* Restart */
-    $("[data-demo-restart]").addEventListener("click", () => {
-      state.pending = 0; state.available = 0; state.sales = 0;
+    async function run() {
+      if (running) return;
+      running = true;
+
+      // reset
+      state.pending = 0;
+      state.available = 0;
       syncBalances(false);
-      saleBtn.textContent = "Run a Sale";
-      saleBtn.disabled = false;
-      next1.disabled = true;
-      settleBtn.textContent = "Settle the Batch";
-      settleBtn.disabled = false;
-      next2.disabled = true;
+      card.classList.remove("is-dipping");
+      screen.textContent = "Ready";
+      screen.classList.remove("is-ok");
       $("[data-demo-finish]").hidden = true;
-      $("[data-demo-copy3]").textContent = "Pick any reward you can afford — gift cards, merchandise, even travel.";
+      $("[data-demo-copy3]").textContent =
+        "Your available points cover real rewards — gift cards, merchandise, even travel.";
       goStep(1);
-    });
+      await sleep(700);
+
+      for (let i = 0; i < 3; i++) await runSale();
+      await sleep(500);
+
+      goStep(2);
+      $("[data-bucket-pending-n]").textContent = D.fmt.format(state.pending);
+      $("[data-bucket-avail-n]").textContent = D.fmt.format(state.available);
+      await sleep(900);
+      await animateSettle();
+      await sleep(800);
+
+      goStep(3);
+      renderDemoRewards();
+      await sleep(1100);
+      const affordable = DEMO_REWARDS.filter((r) => r.pts <= state.available);
+      const pick = affordable[affordable.length - 1] || DEMO_REWARDS[0];
+      const el = $('[data-reward="' + pick.id + '"]');
+      state.available -= pick.pts;
+      syncBalances(true);
+      el.classList.add("is-won");
+      confettiBurst();
+      $("[data-demo-copy3]").textContent =
+        "Redeemed " + pick.name + "! In the real portal your reward ships or arrives by email — and you keep earning on every sale.";
+      await sleep(500);
+      $("[data-demo-finish]").hidden = false;
+
+      running = false;
+    }
+
+    // Auto-start once the demo scrolls into view; replay re-runs it.
+    if ("IntersectionObserver" in window) {
+      const io = new IntersectionObserver((entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          io.disconnect();
+          run();
+        }
+      }, { threshold: 0.45 });
+      io.observe(shell);
+    } else {
+      run();
+    }
+    $("[data-demo-restart]").addEventListener("click", () => run());
 
     syncBalances(false);
   }

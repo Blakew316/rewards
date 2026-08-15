@@ -73,7 +73,7 @@
       <div class="page-head" data-reveal style="text-align:center;display:block">
         <p class="eyebrow">Interactive demo</p>
         <h1 class="h1" style="margin-top:8px">See How Rewards Work</h1>
-        <p class="lead" style="margin-top:10px">Thirty seconds, three steps — run a few sales, watch points settle, redeem a reward.</p>
+        <p class="lead" style="margin-top:10px">Sit back — the demo runs itself. A few sales, points settle, a reward gets redeemed.</p>
       </div>
 
       <section class="card glow demo-shell" data-reveal aria-label="Interactive rewards demo">
@@ -82,38 +82,38 @@
           <div class="demo-balance"><span class="dot" style="background:var(--viz-1)"></span>Available <b class="tabular" data-demo-available>0</b></div>
         </div>
 
-        <!-- Step 1: run sales -->
+        <!-- Step 1: sales run through the terminal -->
         <div class="demo-step is-active" data-demo-step="1">
           <div class="demo-stage">
             <div class="pos">
-              <div class="pos__terminal">
-                <div class="pos__screen" data-demo-screen>Ready</div>
-                <div class="pos__keys"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-              </div>
               <div class="pos__card" data-demo-card>
                 <span class="pos__chip"></span>
+                <svg class="pos__wave" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8.5 9.5a5 5 0 0 1 0 5"/><path d="M11.5 7.5a8 8 0 0 1 0 9"/><path d="M14.5 5.5a11 11 0 0 1 0 13"/></svg>
                 <span class="pos__num">•••• 4629</span>
+              </div>
+              <div class="pos__term">
+                <span class="pos__slot" aria-hidden="true"></span>
+                <div class="pos__screen" data-demo-screen>Ready</div>
+                <div class="pos__pad" aria-hidden="true">
+                  <i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><i>7</i><i>8</i><i>9</i><i>✕</i><i>0</i><i>✓</i>
+                </div>
               </div>
             </div>
           </div>
           <h2 class="h3">1 · Your customers pay like always</h2>
-          <p class="demo-copy">Every card sale you process earns points automatically — nothing extra at the terminal.</p>
-          <div class="btn-row" style="justify-content:center">
-            <button class="btn btn--primary" data-demo-sale>Run a Sale</button>
-            <button class="btn btn--ghost" data-demo-next1 disabled>Next</button>
-          </div>
+          <p class="demo-copy">Every card your terminal runs earns points automatically — nothing extra at checkout.</p>
         </div>
 
         <!-- Step 2: settle -->
         <div class="demo-step" data-demo-step="2">
           <div class="demo-stage">
             <div class="demo-buckets">
-              <div class="demo-bucket" data-bucket-pending>
+              <div class="demo-bucket">
                 <span class="demo-bucket__label">Pending</span>
                 <b class="tabular" data-bucket-pending-n>0</b>
               </div>
               <div class="demo-flow" data-demo-flow aria-hidden="true"></div>
-              <div class="demo-bucket demo-bucket--avail" data-bucket-avail>
+              <div class="demo-bucket demo-bucket--avail">
                 <span class="demo-bucket__label">Available</span>
                 <b class="tabular" data-bucket-avail-n>0</b>
               </div>
@@ -121,10 +121,6 @@
           </div>
           <h2 class="h3">2 · Points settle with your batches</h2>
           <p class="demo-copy">New points sit as Pending while the card batches clear, then become Available on their own.</p>
-          <div class="btn-row" style="justify-content:center">
-            <button class="btn btn--primary" data-demo-settle>Settle the Batch</button>
-            <button class="btn btn--ghost" data-demo-next2 disabled>Next</button>
-          </div>
         </div>
 
         <!-- Step 3: redeem -->
@@ -132,15 +128,15 @@
           <div class="demo-stage">
             <div class="demo-rewards" data-demo-rewards></div>
           </div>
-          <h2 class="h3">3 · Spend points on real rewards</h2>
-          <p class="demo-copy" data-demo-copy3>Pick any reward you can afford — gift cards, merchandise, even travel.</p>
+          <h2 class="h3">3 · Points become real rewards</h2>
+          <p class="demo-copy" data-demo-copy3>Your available points cover real rewards — gift cards, merchandise, even travel.</p>
           <div class="btn-row" style="justify-content:center" data-demo-finish hidden>
             <a class="btn btn--primary" href="rewards.html">Browse the Real Catalog</a>
             <button class="btn btn--ghost" data-demo-restart>Replay Demo</button>
           </div>
         </div>
 
-        <div class="demo-dots" role="tablist" aria-label="Demo steps">
+        <div class="demo-dots" aria-hidden="true">
           <span class="is-on" data-dot="1"></span><span data-dot="2"></span><span data-dot="3"></span>
         </div>
       </section>

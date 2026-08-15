@@ -1355,60 +1355,101 @@ select.input {
 }
 .demo-copy { color: var(--ink-2); max-width: 46ch; margin: 8px auto 20px; font-size: 0.9375rem; }
 
-/* POS terminal + tap-to-pay card */
-.pos { position: relative; width: 250px; height: 210px; }
-.pos__terminal {
-  position: absolute;
-  left: 0; bottom: 0;
-  width: 140px;
-  border-radius: 18px;
-  background: linear-gradient(170deg, #263048, #131b30);
-  padding: 14px 14px 16px;
+/* POS terminal — light hue-washed body, card dips into the slot */
+.pos {
+  position: relative;
+  width: 200px;
+  padding-top: 134px;
+  display: grid;
+  justify-items: center;
+}
+.pos__term {
+  position: relative;
+  z-index: 2;
+  width: 172px;
+  border-radius: 22px;
+  background: linear-gradient(170deg, #ffffff 0%, #f3f6fb 62%, #eef6f1 100%);
+  border: 1px solid var(--line-2);
+  padding: 16px 16px 18px;
   box-shadow: var(--glow-brand);
 }
+.pos__slot {
+  display: block;
+  width: 72%;
+  height: 6px;
+  margin: 0 auto 13px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #d5dbe6, #eef1f6);
+  box-shadow: inset 0 1.5px 2.5px rgba(13, 22, 54, 0.28);
+}
 .pos__screen {
-  height: 58px;
-  border-radius: 10px;
-  background: #0b1122;
-  color: #9fd6ff;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  height: 54px;
+  border-radius: 11px;
+  background: var(--blue-050);
+  border: 1px solid var(--line-2);
+  color: var(--navy-700);
+  font-size: 0.875rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
   display: grid;
   place-items: center;
   padding-inline: 8px;
-  transition: color var(--t-fast) var(--ease);
+  transition: color var(--t-fast) var(--ease), background-color var(--t-fast) var(--ease);
 }
-.pos__screen.is-ok { color: #5fe3a1; }
-.pos__keys {
+.pos__screen.is-ok { color: var(--mint); background: var(--green-050); }
+.pos__pad {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 7px;
-  margin-top: 12px;
+  margin-top: 13px;
 }
-.pos__keys i { height: 12px; border-radius: 4px; background: rgba(255, 255, 255, 0.14); }
+.pos__pad i {
+  height: 24px;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid var(--line-2);
+  display: grid;
+  place-items: center;
+  font-style: normal;
+  font-size: 0.6875rem;
+  font-weight: 550;
+  color: var(--ink-3);
+}
 
 .pos__card {
   position: absolute;
-  right: 0; top: 8px;
-  width: 128px; height: 82px;
+  z-index: 1;
+  top: 0;
+  left: 50%;
+  width: 82px; height: 122px;
+  margin-left: -41px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #1e88f7 0%, #16255f 80%);
-  color: #fff;
-  box-shadow: 0 10px 26px rgba(22, 37, 95, 0.35);
-  transform: rotate(8deg);
-  transition: transform 500ms var(--ease-spring);
+  background: linear-gradient(160deg, #eaf3fe 0%, #f7fbff 52%, #e8f8ef 100%);
+  border: 1px solid var(--line-2);
+  color: var(--navy-700);
+  box-shadow: -8px 10px 22px -12px rgba(30, 136, 247, 0.35), 8px 10px 22px -12px rgba(53, 208, 122, 0.32);
   text-align: left;
-  padding: 12px;
+  padding: 10px;
+  transition: transform 620ms var(--ease-spring);
 }
-.pos__card.is-tapping { transform: translate(-64px, 44px) rotate(-6deg); }
+.pos__card.is-dipping { transform: translateY(58px); }
 .pos__chip {
   display: block;
-  width: 26px; height: 19px;
-  border-radius: 5px;
-  background: linear-gradient(135deg, #ffd977, #d8a940);
+  width: 22px; height: 17px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, #f4dc9a, #ddb45e);
+  border: 1px solid rgba(13, 22, 54, 0.12);
 }
-.pos__num { position: absolute; left: 12px; bottom: 10px; font-size: 0.75rem; letter-spacing: 0.1em; opacity: 0.85; }
+.pos__wave { position: absolute; top: 10px; right: 8px; width: 18px; height: 18px; color: var(--ink-4); transform: rotate(90deg); }
+.pos__num {
+  position: absolute;
+  left: 10px; bottom: 9px;
+  font-size: 0.6875rem;
+  font-weight: 550;
+  letter-spacing: 0.08em;
+  color: var(--ink-3);
+}
 
 .points-fly {
   position: absolute;
@@ -1487,11 +1528,9 @@ select.input {
   display: grid;
   justify-items: center;
   gap: 8px;
-  cursor: pointer;
   transition: transform var(--t) var(--ease-out), box-shadow var(--t) var(--ease), opacity var(--t) var(--ease), border-color var(--t) var(--ease);
 }
-.demo-reward:hover:not([disabled]) { transform: translateY(-3px); box-shadow: var(--glow-brand); }
-.demo-reward[disabled] { opacity: 0.42; cursor: not-allowed; }
+.demo-reward.is-dim { opacity: 0.42; }
 .demo-reward__icon {
   width: 46px; height: 46px;
   border-radius: 14px;
