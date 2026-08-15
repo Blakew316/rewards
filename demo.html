@@ -84,70 +84,26 @@
 
         <div class="demo-step is-active" data-demo-step="1">
           <div class="demo-stage">
-            <div class="sqt-wrap">
-              <svg class="sqt" data-demo-sqt viewBox="0 0 380 300" aria-hidden="true">
-                <defs>
-                  <radialGradient id="sqtShadow" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stop-color="#0d1636" stop-opacity="0.22"/>
-                    <stop offset="100%" stop-color="#0d1636" stop-opacity="0"/>
-                  </radialGradient>
-                  <linearGradient id="sqtTop" x1="0" y1="0" x2="0.25" y2="1">
-                    <stop offset="0%" stop-color="#ffffff"/>
-                    <stop offset="100%" stop-color="#f0f3f8"/>
-                  </linearGradient>
-                  <linearGradient id="sqtFront" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#f6f8fb"/>
-                    <stop offset="100%" stop-color="#dee4ee"/>
-                  </linearGradient>
-                  <linearGradient id="sqtSide" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stop-color="#e6eaf2"/>
-                    <stop offset="100%" stop-color="#cfd6e3"/>
-                  </linearGradient>
-                  <linearGradient id="sqtScrB" x1="0" y1="0" x2="0.3" y2="1">
-                    <stop offset="0%" stop-color="#e3effe"/>
-                    <stop offset="100%" stop-color="#bcd9fb"/>
-                  </linearGradient>
-                  <linearGradient id="sqtScrG" x1="0" y1="0" x2="0.3" y2="1">
-                    <stop offset="0%" stop-color="#ddf6e9"/>
-                    <stop offset="100%" stop-color="#b7ecd1"/>
-                  </linearGradient>
-                  <linearGradient id="sqtCard" x1="0" y1="0" x2="0.4" y2="1">
-                    <stop offset="0%" stop-color="#eef5fe"/>
-                    <stop offset="55%" stop-color="#f9fcff"/>
-                    <stop offset="100%" stop-color="#eaf7f0"/>
-                  </linearGradient>
-                </defs>
-
-                <ellipse cx="178" cy="191" rx="150" ry="17" fill="url(#sqtShadow)"/>
-
-                <!-- top face -->
-                <path d="M129.1 34.5 L305.3 75.8 L226.9 171.8 L50.7 130.4 Z" fill="url(#sqtTop)" stroke="rgba(13,22,54,0.09)" stroke-linejoin="round"/>
-                <!-- bezel + screen on the sloped plane -->
-                <path d="M132.4 43.2 L291.0 80.5 L223.6 163.0 L65.0 125.7 Z" fill="#2a3350" stroke-linejoin="round"/>
-                <path class="sqt__screenfill" d="M133.8 49.3 L281.8 84.0 L222.2 157.0 L74.2 122.2 Z" fill="url(#sqtScrB)" stroke-linejoin="round"/>
-                <g transform="matrix(0.8660,0.2034,-0.6330,0.7742,127.7,73.9)">
-                  <text class="sqt__amt" data-demo-screen x="0" y="0">Ready</text>
-                </g>
-                <g class="sqt__glyph" transform="matrix(0.8660,0.2034,-0.6330,0.7742,141.2,104.9)">
-                  <path d="M0 -9 a12 12 0 0 1 0 18 M5 -15 a20 20 0 0 1 0 30 M10 -21 a28 28 0 0 1 0 42" fill="none" stroke="#16255f" stroke-opacity="0.4" stroke-width="2.8" stroke-linecap="round"/>
-                </g>
-
-                <!-- card: painted before the front face so it slides INTO the slot -->
-                <g class="sqt__card" data-m-rest="translate(320px, 52px) rotate(14deg)" data-m-align="matrix(0.9180,0.2156,0.0000,0.9684,186.5,82.9)" data-m-in="matrix(0.9180,0.2156,0.0000,0.9684,186.5,152.6)">
-                  <g class="sqt__cardbob">
-                    <rect x="-30" y="-45" width="60" height="90" rx="8" fill="url(#sqtCard)" stroke="rgba(13,22,54,0.12)"/>
-                    <rect x="-19" y="-29" width="15" height="11" rx="2.5" fill="#e8c876" stroke="rgba(13,22,54,0.12)"/>
-                    <path d="M13 -31 a8 8 0 0 1 0 15 M18 -36 a14 14 0 0 1 0 25" fill="none" stroke="#aeaeb2" stroke-width="1.5" stroke-linecap="round" transform="rotate(90 14 -24)"/>
-                    <text x="-21" y="37" font-size="8" letter-spacing="1" fill="#86868b" font-weight="600">•••• 4629</text>
-                  </g>
-                </g>
-
-                <!-- right side, front face, slot -->
-                <path d="M305.3 75.8 L305.3 161.1 L226.9 216.3 L226.9 171.8 Z" fill="url(#sqtSide)" stroke="rgba(13,22,54,0.08)" stroke-linejoin="round"/>
-                <path d="M50.7 130.4 L226.9 171.8 L226.9 216.3 L50.7 174.9 Z" fill="url(#sqtFront)" stroke="rgba(13,22,54,0.09)" stroke-linejoin="round"/>
-                <line x1="85.5" y1="154.1" x2="192.0" y2="179.1" stroke="#c2cad9" stroke-width="9" stroke-linecap="round"/>
-                <line x1="89.5" y1="153.4" x2="188.0" y2="179.8" stroke="#7f8aa1" stroke-width="3.6" stroke-linecap="round"/>
-              </svg>
+            <div class="sqt" data-demo-sqt>
+              <div class="sqt__scene">
+                <div class="sqt__screenpanel">
+                  <div class="sqt__glass">
+                    <svg class="sqt__tap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M6.5 8a7.5 7.5 0 0 1 0 8"/><path d="M9.8 6a11 11 0 0 1 0 12"/><path d="M13.1 4a14.5 14.5 0 0 1 0 16"/></svg>
+                    <span class="sqt__amt" data-demo-screen>Ready</span>
+                  </div>
+                </div>
+                <div class="sqt__card" data-m-rest="translate(234px, -4px) rotate(13deg)" data-m-align="translate(188px, -10px) rotate(0deg)" data-m-in="translate(188px, 58px) rotate(0deg)">
+                  <div class="sqt__cardbob">
+                    <span class="sqt__chip"></span>
+                    <svg class="sqt__wave" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8.5 9.5a5 5 0 0 1 0 5"/><path d="M11.5 7.5a8 8 0 0 1 0 9"/><path d="M14.5 5.5a11 11 0 0 1 0 13"/></svg>
+                    <span class="sqt__num">•••• 4629</span>
+                  </div>
+                </div>
+                <div class="sqt__base">
+                  <span class="sqt__slot" aria-hidden="true"></span>
+                </div>
+                <span class="sqt__shadow" aria-hidden="true"></span>
+              </div>
             </div>
           </div>
           <h2 class="h3">1 · Your customers pay like always</h2>
