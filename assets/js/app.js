@@ -1,0 +1,715 @@
+/* WPI Rewards — portal behavior (vanilla JS, no dependencies) */
+(function () {
+  "use strict";
+
+  const D = window.WPI;
+  const $ = (sel, root) => (root || document).querySelector(sel);
+  const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+
+  /* ------------------------------------------------------------------
+     Cart store (localStorage) — shared across all pages
+     ------------------------------------------------------------------ */
+  const Cart = {
+    KEY: "wpi-cart",
+    read() {
+      try { return JSON.parse(localStorage.getItem(this.KEY)) || []; }
+      catch { return []; }
+    },
+    write(items) {
+      localStorage.setItem(this.KEY, JSON.stringify(items));
+      renderCartBadge(true);
+    },
+    add(productId, qty) {
+      const items = this.read();
+      const row = items.find((i) => i.id === productId);
+      if (row) row.qty += qty || 1;
+      else items.push({ id: productId, qty: qty || 1 });
+      this.write(items);
+    },
+    setQty(productId, qty) {
+      let items = this.read();
+      const row = items.find((i) => i.id === productId);
+      if (!row) return;
+      row.qty = qty;
+      if (row.qty <= 0) items = items.filter((i) => i.id !== productId);
+      this.write(items);
+    },
+    remove(productId) {
+      this.write(this.read().filter((i) => i.id !== productId));
+    },
+    clear() { this.write([]); },
+    count() { return this.read().reduce((n, i) => n + i.qty, 0); },
+    totalPoints() {
+      return this.read().reduce((n, i) => {
+        const p = D.catalog.find((c) => c.id === i.id);
+        return n + (p ? p.points * i.qty : 0);
+      }, 0);
+    },
+  };
+  window.WPI.Cart = Cart;
+
+  /* Demo orders placed through this prototype live alongside snapshot orders */
+  const LocalOrders = {
+    KEY: "wpi-demo-orders",
+    read() {
+      try { return JSON.parse(localStorage.getItem(this.KEY)) || []; }
+      catch { return []; }
+    },
+    add(order) {
+      const all = this.read();
+      all.unshift(order);
+      localStorage.setItem(this.KEY, JSON.stringify(all));
+    },
+  };
+
+  function allOrders() {
+    return LocalOrders.read().concat(D.orders);
+  }
+
+  /* ------------------------------------------------------------------
+     Shared shell: header state, badge, menus, toasts, reveals
+     ------------------------------------------------------------------ */
+  function renderCartBadge(bump) {
+    const n = Cart.count();
+    $$("[data-cart-badge]").forEach((el) => {
+      el.textContent = n > 99 ? "99+" : String(n);
+      el.classList.toggle("is-on", n > 0);
+      if (bump && n > 0) {
+        el.classList.remove("bump");
+        void el.offsetWidth;
+        el.classList.add("bump");
+      }
+    });
+  }
+
+  function initHeader() {
+    const header = $(".site-header");
+    if (!header) return;
+    const onScroll = () => header.classList.toggle("is-stuck", window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+
+    const toggle = $(".nav__toggle");
+    if (toggle) {
+      toggle.addEventListener("click", () => {
+        const open = document.body.classList.toggle("menu-open");
+        toggle.setAttribute("aria-expanded", String(open));
+      });
+    }
+
+    const accBtn = $("[data-account-btn]");
+    const accMenu = $("[data-account-menu]");
+    if (accBtn && accMenu) {
+      accBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const open = accMenu.classList.toggle("is-open");
+        accBtn.setAttribute("aria-expanded", String(open));
+      });
+      document.addEventListener("click", (e) => {
+        if (!accMenu.contains(e.target)) {
+          accMenu.classList.remove("is-open");
+          accBtn.setAttribute("aria-expanded", "false");
+        }
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") accMenu.classList.remove("is-open");
+      });
+    }
+
+    $$("[data-points-chip]").forEach((el) => {
+      el.innerHTML =
+        svgIcon("star") +
+        '<span class="tabular">' + D.fmt.format(D.account.availablePoints) + "<i> pts</i></span>";
+    });
+  }
+
+  function toast(message) {
+    let zone = $(".toast-zone");
+    if (!zone) {
+      zone = document.createElement("div");
+      zone.className = "toast-zone";
+      document.body.appendChild(zone);
+    }
+    const el = document.createElement("div");
+    el.className = "toast";
+    el.setAttribute("role", "status");
+    el.innerHTML = svgIcon("check") + "<span>" + message + "</span>";
+    zone.appendChild(el);
+    setTimeout(() => {
+      el.classList.add("is-out");
+      el.addEventListener("animationend", () => el.remove(), { once: true });
+    }, 2600);
+  }
+  window.WPI.toast = toast;
+
+  function initReveals() {
+    const els = $$("[data-reveal]");
+    if (!els.length) return;
+    if (!("IntersectionObserver" in window)) {
+      els.forEach((el) => el.classList.add("is-in"));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((en) => {
+          if (en.isIntersecting) {
+            en.target.classList.add("is-in");
+            io.unobserve(en.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: "0px 0px -4% 0px" }
+    );
+    els.forEach((el) => io.observe(el));
+  }
+
+  function initAccordions() {
+    $$(".acc").forEach((acc) => {
+      const btn = $(".acc__btn", acc);
+      if (!btn) return;
+      btn.addEventListener("click", () => {
+        const open = acc.getAttribute("data-open") === "true";
+        acc.setAttribute("data-open", String(!open));
+        btn.setAttribute("aria-expanded", String(!open));
+      });
+    });
+  }
+
+  /* Fallback page fade for browsers without cross-document view transitions */
+  function initPageTransitions() {
+    if ("startViewTransition" in document || CSS.supports("view-transition-name", "root")) return;
+    document.addEventListener("click", (e) => {
+      const a = e.target.closest("a[href]");
+      if (!a || a.target || a.href.startsWith("mailto:") || a.href.startsWith("tel:")) return;
+      const url = new URL(a.href, location.href);
+      if (url.origin !== location.origin || (url.pathname === location.pathname && url.hash)) return;
+      e.preventDefault();
+      document.body.classList.add("is-leaving");
+      setTimeout(() => { location.href = a.href; }, 170);
+    });
+    window.addEventListener("pageshow", () => document.body.classList.remove("is-leaving"));
+  }
+
+  function countUp(el, target, ms) {
+    const dur = ms || 1100;
+    const start = performance.now();
+    const from = 0;
+    const step = (now) => {
+      const t = Math.min(1, (now - start) / dur);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = D.fmt.format(Math.round(from + (target - from) * eased));
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  function initCountups() {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    $$("[data-countup]").forEach((el) => {
+      const target = Number(el.getAttribute("data-countup"));
+      if (reduce) { el.textContent = D.fmt.format(target); return; }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((en) => {
+          if (en.isIntersecting) { countUp(el, target); io.disconnect(); }
+        });
+      }, { threshold: 0.4 });
+      io.observe(el);
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     Icons & product art
+     ------------------------------------------------------------------ */
+  function svgIcon(name, size) {
+    const s = size || 16;
+    const paths = {
+      star: '<path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/>',
+      check: '<polyline points="20 6 9 17 4 12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>',
+      cart: '<circle cx="9" cy="20" r="1.6"/><circle cx="17" cy="20" r="1.6"/><path d="M3 3h2.4l2.2 11.2a1.6 1.6 0 0 0 1.6 1.3h7.9a1.6 1.6 0 0 0 1.6-1.3L20.5 7H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+      gift: '<rect x="3.5" y="8.5" width="17" height="12" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8.5V20.5M3.5 13h17M12 8.5c-2.3 0-4.6-1-4.6-3a2.1 2.1 0 0 1 4.2-.6c.3.9.4 2.4.4 3.6zm0 0c2.3 0 4.6-1 4.6-3a2.1 2.1 0 0 0-4.2-.6c-.3.9-.4 2.4-.4 3.6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
+      watch: '<circle cx="12" cy="12" r="5.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 9.4V12l1.9 1.4M9 6.6 9.6 2h4.8L15 6.6M9 17.4 9.6 22h4.8l.6-4.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+      plane: '<path d="M10.2 13.8 3 11.4l1.5-1.5 5.6.7 4.7-4.7a1.7 1.7 0 0 1 2.4 2.4l-4.7 4.7.7 5.6-1.5 1.5-2.4-7.2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
+      box: '<path d="M12 2.8 20.5 7v10L12 21.2 3.5 17V7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M3.5 7 12 11.2 20.5 7M12 11.2V21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
+      receipt: '<path d="M6 2.8h12v18l-2.4-1.6-2.4 1.6-1.2-.9-1.2.9-2.4-1.6L6 20.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 8h6M9 12h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+      user: '<circle cx="12" cy="8.2" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.8 20.2a7.2 7.2 0 0 1 14.4 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+      logout: '<path d="M14 4h-8v16h8M10 12h11M18 8.5 21.5 12 18 15.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+      search: '<circle cx="10.8" cy="10.8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="m15.6 15.6 4.6 4.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/>',
+      trend: '<path d="M3 17.5 9.2 11l3.6 3.4L21 6.4" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M15.4 6.4H21v5.6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>',
+      clock: '<circle cx="12" cy="12" r="8.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.6V12l3 2.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+      shield: '<path d="M12 2.8 19.5 6v5.4c0 4.6-3 8.2-7.5 9.8-4.5-1.6-7.5-5.2-7.5-9.8V6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><polyline points="8.8 12 11 14.2 15.4 9.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+      mail: '<rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m3.6 6.6 8.4 6.6 8.4-6.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
+      phone: '<path d="M7.2 3.2 9.6 3l1.4 4-2 1.6a12.5 12.5 0 0 0 4.4 4.4l1.6-2 4 1.4-.2 2.4c-.1 1.4-1.3 2.4-2.6 2.2A16.4 16.4 0 0 1 5 5.8c-.2-1.3.8-2.5 2.2-2.6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
+      trash: '<path d="M4.5 6.5h15M9.5 6.5v-2h5v2M6.5 6.5 7.4 20h9.2l.9-13.5M10 10.5v6M14 10.5v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+    };
+    return (
+      '<svg width="' + s + '" height="' + s + '" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
+      (paths[name] || "") +
+      "</svg>"
+    );
+  }
+  window.WPI.svgIcon = svgIcon;
+
+  const CAT_META = {
+    gift:   { label: "Gift Cards",     art: "gift",   icon: "gift" },
+    luxury: { label: "Luxury Goods",   art: "luxury", icon: "watch" },
+    travel: { label: "Travel",         art: "travel", icon: "plane" },
+    merch:  { label: "Merchandise",    art: "merch",  icon: "box" },
+  };
+  window.WPI.CAT_META = CAT_META;
+
+  function productArt(p, iconSize) {
+    const m = CAT_META[p.cat];
+    return (
+      '<div class="product__art product__art--' + m.art + '" data-brand="' + p.brand + '">' +
+      svgIcon(m.icon, iconSize || 52) +
+      "</div>"
+    );
+  }
+
+  function productCard(p) {
+    const afford = p.points <= D.account.availablePoints;
+    return (
+      '<article class="product' + (afford ? " product--afford" : "") + '" data-id="' + p.id + '">' +
+      productArt(p) +
+      '<div class="product__body">' +
+      '<span class="product__cat">' + CAT_META[p.cat].label + "</span>" +
+      '<h3 class="product__name">' + p.name + "</h3>" +
+      '<p class="product__desc">' + p.desc + "</p>" +
+      '<div class="product__foot">' +
+      '<div class="product__points tabular">' + D.fmt.format(p.points) + "<span>points</span></div>" +
+      '<button class="btn btn--tint btn--sm" data-add="' + p.id + '">Add</button>' +
+      "</div></div></article>"
+    );
+  }
+
+  function bindAddButtons(root) {
+    (root || document).addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-add]");
+      if (!btn) return;
+      const id = btn.getAttribute("data-add");
+      const p = D.catalog.find((c) => c.id === id);
+      Cart.add(id, 1);
+      toast("Added to cart — " + (p ? p.name : "item"));
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     Charts (inline SVG, no libraries)
+     ------------------------------------------------------------------ */
+  function renderLineChart(host) {
+    const data = D.transactions.slice().reverse(); // chronological
+    const W = 720, H = 300;
+    const pad = { t: 18, r: 16, b: 34, l: 48 };
+    const iw = W - pad.l - pad.r;
+    const ih = H - pad.t - pad.b;
+
+    const max = Math.max(...data.map((d) => d.points));
+    const yMax = Math.ceil(max / 500) * 500;
+    const x = (i) => pad.l + (i / (data.length - 1)) * iw;
+    const y = (v) => pad.t + ih - (v / yMax) * ih;
+
+    let path = "";
+    data.forEach((d, i) => { path += (i ? "L" : "M") + x(i).toFixed(1) + " " + y(d.points).toFixed(1) + " "; });
+    const area = path + "L" + x(data.length - 1).toFixed(1) + " " + (pad.t + ih) + " L" + pad.l + " " + (pad.t + ih) + " Z";
+
+    const yTicks = [];
+    for (let v = 0; v <= yMax; v += yMax / 4) yTicks.push(v);
+
+    const xLabelIdx = [0, Math.floor(data.length / 3), Math.floor((2 * data.length) / 3), data.length - 1];
+    const shortDate = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
+    let svg =
+      '<svg viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Points earned per settlement day, ' +
+      shortDate(data[0].date) + " to " + shortDate(data[data.length - 1].date) + '">' +
+      '<defs><linearGradient id="areaFill" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0%" stop-color="#2a78d6" stop-opacity="0.18"/>' +
+      '<stop offset="100%" stop-color="#2a78d6" stop-opacity="0"/>' +
+      "</linearGradient></defs>";
+
+    yTicks.forEach((v) => {
+      const yy = y(v).toFixed(1);
+      svg += '<line class="viz-grid-line" x1="' + pad.l + '" x2="' + (W - pad.r) + '" y1="' + yy + '" y2="' + yy + '"/>';
+      svg += '<text x="' + (pad.l - 9) + '" y="' + yy + '" text-anchor="end" dominant-baseline="middle">' +
+        (v >= 1000 ? v / 1000 + "k" : v) + "</text>";
+    });
+    svg += '<line class="viz-axis-line" x1="' + pad.l + '" x2="' + (W - pad.r) + '" y1="' + (pad.t + ih) + '" y2="' + (pad.t + ih) + '"/>';
+    xLabelIdx.forEach((i) => {
+      svg += '<text x="' + x(i).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle">' + shortDate(data[i].date) + "</text>";
+    });
+
+    svg += '<path class="viz-area" d="' + area + '"/>';
+    svg += '<path class="viz-line" d="' + path + '"/>';
+    svg += '<line class="viz-crosshair" data-crosshair x1="0" x2="0" y1="' + pad.t + '" y2="' + (pad.t + ih) + '"/>';
+    svg += '<circle class="viz-dot" data-hoverdot r="4.5" cx="-10" cy="-10" opacity="0"/>';
+    svg += "</svg>";
+
+    host.innerHTML = svg + '<div class="viz-tip" data-tip></div>';
+
+    const svgEl = $("svg", host);
+    const tip = $("[data-tip]", host);
+    const cross = $("[data-crosshair]", host);
+    const dot = $("[data-hoverdot]", host);
+
+    function onMove(evt) {
+      const rect = svgEl.getBoundingClientRect();
+      const px = ((evt.clientX - rect.left) / rect.width) * W;
+      const i = Math.max(0, Math.min(data.length - 1, Math.round(((px - pad.l) / iw) * (data.length - 1))));
+      const d = data[i];
+      const cx = x(i), cy = y(d.points);
+      cross.setAttribute("x1", cx); cross.setAttribute("x2", cx);
+      cross.classList.add("is-on");
+      dot.setAttribute("cx", cx); dot.setAttribute("cy", cy); dot.setAttribute("opacity", "1");
+      tip.innerHTML = "<b>" + D.fmt.format(d.points) + " pts</b><br><span>" + D.fmtDate(d.date) + " · " + D.fmtUsd.format(d.amount) + " processed</span>";
+      tip.style.left = (cx / W) * 100 + "%";
+      tip.style.top = Math.max(0, (cy / H) * rect.height - 62) + "px";
+      tip.classList.add("is-on");
+    }
+    function onLeave() {
+      tip.classList.remove("is-on");
+      cross.classList.remove("is-on");
+      dot.setAttribute("opacity", "0");
+    }
+    svgEl.addEventListener("pointermove", onMove);
+    svgEl.addEventListener("pointerleave", onLeave);
+  }
+
+  function renderDonut(host) {
+    const a = D.account;
+    const R = 66, C = 2 * Math.PI * R;
+    const total = a.totalPoints;
+    const avail = a.availablePoints / total;
+    const pend = a.pendingPoints / total;
+    const GAP = 2.6 / (2 * Math.PI * R) ; // ≈2px surface gap between segments
+    const seg = (frac, offsetFrac, color) => {
+      const len = Math.max(0, (frac - GAP) * C);
+      return '<circle class="donut__seg" r="' + R + '" cx="79" cy="79" stroke="' + color +
+        '" stroke-dasharray="' + len.toFixed(1) + " " + (C - len).toFixed(1) +
+        '" stroke-dashoffset="' + (-offsetFrac * C).toFixed(1) + '"/>';
+    };
+    host.innerHTML =
+      '<div class="donut" role="img" aria-label="Points balance: ' +
+      D.fmt.format(a.availablePoints) + " available, " + D.fmt.format(a.pendingPoints) + ' pending">' +
+      '<svg viewBox="0 0 158 158">' +
+      '<circle class="donut__track" r="' + R + '" cx="79" cy="79"/>' +
+      seg(avail, 0, "var(--viz-1)") +
+      seg(pend, avail, "var(--viz-2)") +
+      "</svg>" +
+      '<div class="donut__center"><b class="tabular" data-countup="' + total + '">0</b><span>total points</span></div>' +
+      "</div>" +
+      '<div class="legend">' +
+      '<div class="legend__row"><i style="background:var(--viz-1)"></i><span>Available</span><b class="tabular">' + D.fmt.format(a.availablePoints) + "</b></div>" +
+      '<div class="legend__row"><i style="background:var(--viz-2)"></i><span>Pending</span><b class="tabular">' + D.fmt.format(a.pendingPoints) + "</b></div>" +
+      '<div class="legend__row"><i style="background:var(--bg-3)"></i><span>Total earned</span><b class="tabular">' + D.fmt.format(total) + "</b></div>" +
+      "</div>";
+  }
+
+  /* ------------------------------------------------------------------
+     Page: Dashboard
+     ------------------------------------------------------------------ */
+  function pageDashboard() {
+    const donut = $("[data-donut]");
+    if (donut) renderDonut(donut);
+    const chart = $("[data-line-chart]");
+    if (chart) renderLineChart(chart);
+
+    const rail = $("[data-featured]");
+    if (rail) {
+      const featured = D.catalog
+        .filter((p) => p.cat !== "luxury" || p.points < 1500000)
+        .sort((x, yv) => x.points - yv.points)
+        .slice(0, 10);
+      rail.innerHTML = featured.map(productCard).join("");
+    }
+
+    const act = $("[data-activity]");
+    if (act) {
+      const rows = allOrders().slice(0, 4).map((o) =>
+        '<div class="row-list__item">' +
+        '<div class="row-list__icon">' + svgIcon("gift", 20) + "</div>" +
+        '<div class="row-list__body"><b>Redeemed ' + o.name + "</b><span>" + D.fmtDate(o.date) + "</span></div>" +
+        '<div class="row-list__value is-neg tabular">−' + D.fmt.format(o.points) + " pts</div>" +
+        "</div>"
+      );
+      const recent = D.transactions.slice(0, 2).map((t) =>
+        '<div class="row-list__item">' +
+        '<div class="row-list__icon">' + svgIcon("trend", 20) + "</div>" +
+        '<div class="row-list__body"><b>Points earned on processing</b><span>' + D.fmtDate(t.date) + " · " + D.fmtUsd.format(t.amount) + " processed</span></div>" +
+        '<div class="row-list__value is-pos tabular">+' + D.fmt.format(t.points) + " pts</div>" +
+        "</div>"
+      );
+      act.innerHTML = recent.concat(rows).join("");
+    }
+
+    const faqHost = $("[data-faq]");
+    if (faqHost) {
+      faqHost.innerHTML = D.faq.map((f, i) =>
+        '<div class="acc" data-open="false">' +
+        '<h3><button class="acc__btn" aria-expanded="false" id="faq-btn-' + i + '" aria-controls="faq-panel-' + i + '">' +
+        f.q + '<span class="acc__sign" aria-hidden="true"></span></button></h3>' +
+        '<div class="acc__panel" id="faq-panel-' + i + '" role="region" aria-labelledby="faq-btn-' + i + '"><div class="acc__inner"><p>' + f.a + "</p></div></div>" +
+        "</div>"
+      ).join("");
+      initAccordions();
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     Page: Rewards catalog
+     ------------------------------------------------------------------ */
+  function pageCatalog() {
+    const grid = $("[data-products]");
+    if (!grid) return;
+    const countEl = $("[data-count]");
+    const searchEl = $("[data-search]");
+    const sortEl = $("[data-sort]");
+    const affordEl = $("[data-afford]");
+    const segBtns = $$("[data-cat]");
+
+    const params = new URLSearchParams(location.search);
+    const state = {
+      cat: params.get("cat") || "all",
+      q: "",
+      sort: "match",
+      afford: params.get("afford") === "1",
+    };
+    if (affordEl) affordEl.checked = state.afford;
+    segBtns.forEach((b) => b.setAttribute("aria-pressed", String(b.getAttribute("data-cat") === state.cat)));
+
+    function apply() {
+      let items = D.catalog.slice();
+      if (state.cat !== "all") items = items.filter((p) => p.cat === state.cat);
+      if (state.afford) items = items.filter((p) => p.points <= D.account.availablePoints);
+      if (state.q) {
+        const q = state.q.toLowerCase();
+        items = items.filter((p) => (p.name + " " + p.brand + " " + p.desc).toLowerCase().includes(q));
+      }
+      if (state.sort === "low") items.sort((a, b) => a.points - b.points);
+      else if (state.sort === "high") items.sort((a, b) => b.points - a.points);
+      else if (state.sort === "name") items.sort((a, b) => a.name.localeCompare(b.name));
+
+      if (countEl) {
+        countEl.textContent = items.length
+          ? items.length + (items.length === 1 ? " reward" : " rewards") +
+            (state.afford ? " within your " + D.fmt.format(D.account.availablePoints) + " available points" : "")
+          : "";
+      }
+
+      if (!items.length) {
+        grid.innerHTML =
+          '<div class="empty" style="grid-column:1/-1">' +
+          '<div class="empty__icon">' + svgIcon("search", 26) + "</div>" +
+          "<h3>No rewards match</h3><p>Try a different search, category, or turn off the points filter.</p></div>";
+        return;
+      }
+      grid.innerHTML = items.map(productCard).join("");
+    }
+
+    segBtns.forEach((b) =>
+      b.addEventListener("click", () => {
+        state.cat = b.getAttribute("data-cat");
+        segBtns.forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+        apply();
+      })
+    );
+    if (searchEl) searchEl.addEventListener("input", () => { state.q = searchEl.value.trim(); apply(); });
+    if (sortEl) sortEl.addEventListener("change", () => { state.sort = sortEl.value; apply(); });
+    if (affordEl) affordEl.addEventListener("change", () => { state.afford = affordEl.checked; apply(); });
+
+    apply();
+  }
+
+  /* ------------------------------------------------------------------
+     Page: Earnings
+     ------------------------------------------------------------------ */
+  function pageEarnings() {
+    const donut = $("[data-donut]");
+    if (donut) renderDonut(donut);
+    const chart = $("[data-line-chart]");
+    if (chart) renderLineChart(chart);
+
+    const host = $("[data-transactions]");
+    if (!host) return;
+    const searchEl = $("[data-tx-search]");
+
+    function render(q) {
+      let rows = D.transactions;
+      if (q) rows = rows.filter((t) => (D.fmtDateLong(t.date) + t.amount + t.points).toLowerCase().includes(q.toLowerCase()));
+      if (!rows.length) {
+        host.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--ink-3);padding:34px">No transactions match.</td></tr>';
+        return;
+      }
+      let lastMonth = "";
+      host.innerHTML = rows.map((t) => {
+        const month = new Date(t.date + "T12:00:00").toLocaleDateString("en-US", { month: "long", year: "numeric" });
+        const label = month !== lastMonth
+          ? '<tr><td colspan="3" class="month-label" style="background:var(--bg-2);border-bottom:1px solid var(--line-2);padding:10px 18px">' + month + "</td></tr>"
+          : "";
+        lastMonth = month;
+        return label +
+          "<tr><td>" + D.fmtDateLong(t.date) + '</td><td class="num tabular">' + D.fmtUsd.format(t.amount) +
+          '</td><td class="num tabular" style="color:var(--mint);font-weight:600">+' + D.fmt.format(t.points) + "</td></tr>";
+      }).join("");
+    }
+    if (searchEl) searchEl.addEventListener("input", () => render(searchEl.value.trim()));
+    render("");
+
+    const act = $("[data-redemptions]");
+    if (act) {
+      act.innerHTML = allOrders().map((o) =>
+        '<div class="row-list__item">' +
+        '<div class="row-list__icon">' + svgIcon("gift", 20) + "</div>" +
+        '<div class="row-list__body"><b>Redeemed ' + o.name + "</b><span>" + D.fmtDate(o.date) + "</span></div>" +
+        '<div class="row-list__value is-neg tabular">−' + D.fmt.format(o.points) + " pts</div>" +
+        "</div>"
+      ).join("");
+    }
+  }
+
+  /* ------------------------------------------------------------------
+     Page: Orders
+     ------------------------------------------------------------------ */
+  function pageOrders() {
+    const host = $("[data-orders]");
+    if (!host) return;
+    const searchEl = $("[data-order-search]");
+
+    function render(q) {
+      let rows = allOrders();
+      if (q) rows = rows.filter((o) => (o.id + " " + o.name).toLowerCase().includes(q.toLowerCase()));
+      if (!rows.length) {
+        host.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--ink-3);padding:34px">No orders match.</td></tr>';
+        return;
+      }
+      host.innerHTML = rows.map((o) => {
+        const p = D.catalog.find((c) => c.id === o.productId);
+        const art = p
+          ? '<div class="cart-item__art product__art--' + CAT_META[p.cat].art + '" style="width:56px;height:42px;border-radius:10px">' + svgIcon(CAT_META[p.cat].icon, 22) + "</div>"
+          : "";
+        const pill = o.status === "Confirmed"
+          ? '<span class="pill-status pill-status--ok">Confirmed</span>'
+          : '<span class="pill-status pill-status--pending">' + o.status + "</span>";
+        return "<tr><td>" + art + '</td><td><span class="tabular" style="font-weight:550">' + o.id + "</span></td><td>" + o.name +
+          "</td><td>" + D.fmtDate(o.date) + '</td><td class="num tabular">' + o.qty +
+          '</td><td class="num tabular" style="font-weight:600">' + D.fmt.format(o.points) + "</td><td>" + pill + "</td></tr>";
+      }).join("");
+    }
+    if (searchEl) searchEl.addEventListener("input", () => render(searchEl.value.trim()));
+    render("");
+  }
+
+  /* ------------------------------------------------------------------
+     Page: Cart
+     ------------------------------------------------------------------ */
+  function pageCart() {
+    const listHost = $("[data-cart-list]");
+    if (!listHost) return;
+    const layout = $("[data-cart-layout]");
+    const emptyHost = $("[data-cart-empty]");
+    const totalEl = $("[data-cart-total]");
+    const remainEl = $("[data-cart-remaining]");
+    const warnEl = $("[data-cart-warn]");
+    const checkoutBtn = $("[data-checkout]");
+    const successHost = $("[data-cart-success]");
+
+    function render() {
+      const items = Cart.read();
+      const has = items.length > 0;
+      if (layout) layout.hidden = !has;
+      if (emptyHost) emptyHost.hidden = has;
+      if (!has) return;
+
+      listHost.innerHTML = items.map((row) => {
+        const p = D.catalog.find((c) => c.id === row.id);
+        if (!p) return "";
+        return (
+          '<div class="cart-item" data-row="' + p.id + '">' +
+          '<div class="cart-item__art product__art--' + CAT_META[p.cat].art + '">' + svgIcon(CAT_META[p.cat].icon, 30) + "</div>" +
+          "<div><div class='cart-item__name'>" + p.name + "</div>" +
+          '<div class="cart-item__meta">' + CAT_META[p.cat].label + " · " + D.fmt.format(p.points) + " pts each</div>" +
+          '<div style="margin-top:10px;display:flex;align-items:center;gap:14px">' +
+          '<div class="qty"><button data-dec="' + p.id + '" aria-label="Decrease quantity">−</button><output>' + row.qty + '</output><button data-inc="' + p.id + '" aria-label="Increase quantity">+</button></div>' +
+          '<button class="link" style="font-size:.8125rem" data-remove="' + p.id + '">Remove</button>' +
+          "</div></div>" +
+          '<div class="cart-item__right"><div class="cart-item__points tabular">' + D.fmt.format(p.points * row.qty) + " pts</div></div>" +
+          "</div>"
+        );
+      }).join("");
+
+      const total = Cart.totalPoints();
+      const remaining = D.account.availablePoints - total;
+      if (totalEl) totalEl.textContent = D.fmt.format(total) + " pts";
+      if (remainEl) {
+        remainEl.textContent = (remaining >= 0 ? D.fmt.format(remaining) : "−" + D.fmt.format(-remaining)) + " pts";
+        remainEl.style.color = remaining < 0 ? "var(--amber)" : "";
+      }
+      if (warnEl) warnEl.hidden = remaining >= 0;
+      if (checkoutBtn) checkoutBtn.disabled = remaining < 0;
+    }
+
+    listHost.addEventListener("click", (e) => {
+      const inc = e.target.closest("[data-inc]");
+      const dec = e.target.closest("[data-dec]");
+      const rem = e.target.closest("[data-remove]");
+      if (inc) Cart.setQty(inc.getAttribute("data-inc"), (Cart.read().find((i) => i.id === inc.getAttribute("data-inc")) || {}).qty + 1);
+      if (dec) Cart.setQty(dec.getAttribute("data-dec"), (Cart.read().find((i) => i.id === dec.getAttribute("data-dec")) || {}).qty - 1);
+      if (rem) { Cart.remove(rem.getAttribute("data-remove")); toast("Removed from cart"); }
+      if (inc || dec || rem) render();
+    });
+
+    if (checkoutBtn) {
+      checkoutBtn.addEventListener("click", () => {
+        const items = Cart.read();
+        const today = new Date().toISOString().slice(0, 10);
+        items.forEach((row) => {
+          const p = D.catalog.find((c) => c.id === row.id);
+          if (!p) return;
+          LocalOrders.add({
+            id: "ORD-" + Math.random().toString(16).slice(2, 12).toUpperCase(),
+            productId: p.id, name: p.name, date: today, qty: row.qty,
+            points: p.points * row.qty, status: "Processing",
+          });
+        });
+        Cart.clear();
+        if (layout) layout.hidden = true;
+        if (successHost) successHost.hidden = false;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    }
+
+    render();
+  }
+
+  /* ------------------------------------------------------------------
+     Page: Profile
+     ------------------------------------------------------------------ */
+  function pageProfile() {
+    $$("[data-save-form]").forEach((form) => {
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        toast(form.getAttribute("data-save-form") || "Changes saved");
+      });
+    });
+  }
+
+  /* ------------------------------------------------------------------
+     Boot
+     ------------------------------------------------------------------ */
+  document.addEventListener("DOMContentLoaded", () => {
+    initHeader();
+    renderCartBadge(false);
+    initReveals();
+    initAccordions();
+    initPageTransitions();
+    bindAddButtons();
+
+    const page = document.body.getAttribute("data-page");
+    if (page === "dashboard") pageDashboard();
+    if (page === "catalog") pageCatalog();
+    if (page === "earnings") pageEarnings();
+    if (page === "orders") pageOrders();
+    if (page === "cart") pageCart();
+    if (page === "profile") pageProfile();
+
+    initCountups();
+  });
+})();

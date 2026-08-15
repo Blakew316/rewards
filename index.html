@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard — WPI Rewards</title>
+  <meta name="description" content="Track your reward points, watch your balance grow, and redeem for gift cards, travel and more.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a66ff'/%3E%3Ctext x='32' y='42' font-family='-apple-system,Arial' font-size='28' font-weight='700' fill='white' text-anchor='middle'%3EW%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="dashboard">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <nav class="nav" aria-label="Primary">
+      <a class="brand" href="index.html">
+        <span class="brand__mark" aria-hidden="true">W</span>
+        <span class="brand__name">WPI <span>Rewards</span></span>
+      </a>
+      <div class="nav__links">
+        <a class="nav__link" href="index.html" aria-current="page">Dashboard</a>
+        <a class="nav__link" href="rewards.html">Rewards</a>
+        <a class="nav__link" href="earnings.html">Earnings</a>
+        <a class="nav__link" href="orders.html">Orders</a>
+      </div>
+      <div class="nav__actions">
+        <a class="points-chip" href="earnings.html" data-points-chip title="Available points"></a>
+        <a class="icon-btn" href="cart.html" aria-label="Cart">
+          <svg width="21" height="21" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="20" r="1.6"/><circle cx="17" cy="20" r="1.6"/><path d="M3 3h2.4l2.2 11.2a1.6 1.6 0 0 0 1.6 1.3h7.9a1.6 1.6 0 0 0 1.6-1.3L20.5 7H6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="cart-badge" data-cart-badge aria-hidden="true"></span>
+        </a>
+        <button class="account-btn" data-account-btn aria-expanded="false" aria-haspopup="true" aria-label="Account menu">
+          <span class="avatar">CH</span>
+          <span class="account-btn__caret" aria-hidden="true"></span>
+        </button>
+        <button class="nav__toggle" aria-label="Menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </nav>
+    <div class="account-menu" data-account-menu>
+      <div class="account-menu__head">
+        <b>Colony House Liquor</b>
+        <span>Merchant Admin · MID 554402059848457</span>
+      </div>
+      <a href="profile.html"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.2" r="3.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.8 20.2a7.2 7.2 0 0 1 14.4 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>My Profile</a>
+      <a href="orders.html"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2.8h12v18l-2.4-1.6-2.4 1.6-1.2-.9-1.2.9-2.4-1.6L6 20.8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 8h6M9 12h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Order History</a>
+      <a href="mailto:support@wholesalepayments.com"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m3.6 6.6 8.4 6.6 8.4-6.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>Contact Support</a>
+      <a href="index.html"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h-8v16h8M10 12h11M18 8.5 21.5 12 18 15.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Sign Out</a>
+    </div>
+  </header>
+
+  <div class="menu" id="mobile-menu">
+    <a class="menu__link" style="--i:0" href="index.html">Dashboard</a>
+    <a class="menu__link" style="--i:1" href="rewards.html">Rewards Catalog</a>
+    <a class="menu__link" style="--i:2" href="earnings.html">Earnings</a>
+    <a class="menu__link" style="--i:3" href="orders.html">Order History</a>
+    <a class="menu__link" style="--i:4" href="cart.html">Cart</a>
+    <a class="menu__link" style="--i:5" href="profile.html">My Profile</a>
+  </div>
+
+  <main id="main">
+    <!-- Greeting -->
+    <section class="greeting">
+      <div class="container">
+        <div class="page-head" style="margin-bottom:0">
+          <div data-reveal>
+            <p class="eyebrow">Merchant rewards</p>
+            <h1 class="h1" style="margin-top:8px">Welcome back, Colony House Liquor</h1>
+            <div class="page-head__meta">
+              <span class="chip">MID 554402059848457</span>
+              <span class="chip">Member since February 2026</span>
+              <span class="chip chip--tint">Earning on every transaction</span>
+            </div>
+          </div>
+          <div class="btn-row" data-reveal style="--d:1">
+            <a class="btn btn--primary" href="rewards.html">Redeem Points</a>
+            <a class="btn btn--ghost" href="earnings.html">View Earnings</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container page">
+      <!-- Balance + chart -->
+      <div class="grid grid-3">
+        <section class="card" data-reveal aria-labelledby="balance-title">
+          <h2 class="h3" id="balance-title" style="margin-bottom:18px">Points Balance</h2>
+          <div class="donut-wrap" data-donut></div>
+          <p class="fine" style="margin-top:18px">Pending points become available automatically once your recent batches settle.</p>
+        </section>
+
+        <section class="card span-2" data-reveal style="--d:1" aria-labelledby="chart-title">
+          <div class="section-title" style="margin-bottom:6px">
+            <h2 class="h3" id="chart-title">Points Earned Over Time</h2>
+            <span class="fine tabular">Last 30 settlement days</span>
+          </div>
+          <p class="fine" style="margin-bottom:14px">Daily points earned on card processing. Hover for the day's detail.</p>
+          <div class="viz" data-line-chart></div>
+        </section>
+      </div>
+
+      <!-- Ways to spend -->
+      <section class="section-gap" aria-labelledby="spend-title">
+        <div class="section-title">
+          <h2 class="h2" id="spend-title">Ways to Spend Your Points</h2>
+          <a class="link" href="rewards.html">Browse everything</a>
+        </div>
+        <div class="grid grid-3">
+          <a class="card card--hover" href="rewards.html?cat=gift" data-reveal>
+            <div class="card__icon">
+              <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="8.5" width="17" height="12" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8.5V20.5M3.5 13h17M12 8.5c-2.3 0-4.6-1-4.6-3a2.1 2.1 0 0 1 4.2-.6c.3.9.4 2.4.4 3.6zm0 0c2.3 0 4.6-1 4.6-3a2.1 2.1 0 0 0-4.2-.6c-.3.9-.4 2.4-.4 3.6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </div>
+            <h3 class="h3">Gift Cards</h3>
+            <p class="small" style="margin-top:8px">The most popular redemption — digital cards from major brands, delivered in a day.</p>
+            <span class="link" style="margin-top:14px">Shop gift cards</span>
+          </a>
+          <a class="card card--hover" href="rewards.html?cat=travel" data-reveal style="--d:1">
+            <div class="card__icon card__icon--mint">
+              <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.2 13.8 3 11.4l1.5-1.5 5.6.7 4.7-4.7a1.7 1.7 0 0 1 2.4 2.4l-4.7 4.7.7 5.6-1.5 1.5-2.4-7.2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+            </div>
+            <h3 class="h3">Travel Packages</h3>
+            <p class="small" style="margin-top:8px">Fully packaged getaways for two — resorts, cruises and city escapes.</p>
+            <span class="link" style="margin-top:14px">Explore travel</span>
+          </a>
+          <a class="card card--hover" href="rewards.html?cat=luxury" data-reveal style="--d:2">
+            <div class="card__icon card__icon--amber">
+              <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 9.4V12l1.9 1.4M9 6.6 9.6 2h4.8L15 6.6M9 17.4 9.6 22h4.8l.6-4.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h3 class="h3">Luxury Goods</h3>
+            <p class="small" style="margin-top:8px">Cartier, Rolex, Omega, Breitling — save toward something exceptional.</p>
+            <span class="link" style="margin-top:14px">See the collection</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- Featured rewards rail -->
+      <section class="section-gap" aria-labelledby="featured-title">
+        <div class="section-title">
+          <h2 class="h2" id="featured-title">Within Your Reach</h2>
+          <a class="link" href="rewards.html?afford=1">See all you can redeem today</a>
+        </div>
+        <div class="rail" data-featured></div>
+      </section>
+
+      <!-- Activity + promo -->
+      <div class="grid grid-3 section-gap">
+        <section class="card span-2" data-reveal aria-labelledby="activity-title">
+          <div class="section-title" style="margin-bottom:8px">
+            <h2 class="h3" id="activity-title">Recent Activity</h2>
+            <a class="link" href="earnings.html">Full history</a>
+          </div>
+          <div class="row-list" data-activity></div>
+        </section>
+
+        <section class="card promo" data-reveal style="--d:1">
+          <h3 class="h3" style="margin-bottom:10px">Your rewards can take you places</h3>
+          <p class="small">You're earning on every card transaction you process — no extra steps, no enrollment forms. Set a goal and watch your balance climb toward it.</p>
+          <div style="margin-top:22px" class="btn-row">
+            <a class="btn btn--white btn--sm" href="rewards.html?cat=travel">Book Travel</a>
+            <a class="btn" style="background:rgba(255,255,255,.12);color:#fff" href="rewards.html">Set a Goal</a>
+          </div>
+        </section>
+      </div>
+
+      <!-- FAQ -->
+      <section class="section-gap container--narrow" style="margin-inline:auto" aria-labelledby="faq-title">
+        <h2 class="h2" id="faq-title" style="text-align:center;margin-bottom:26px">Frequently Asked Questions</h2>
+        <div class="accordion" data-faq></div>
+        <div style="text-align:center;margin-top:30px">
+          <p class="small muted" style="margin-bottom:14px">Still have a question?</p>
+          <a class="btn btn--dark" href="mailto:support@wholesalepayments.com">Ask a Question</a>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div>
+          <a class="brand" href="index.html">
+            <span class="brand__mark" aria-hidden="true">W</span>
+            <span class="brand__name">WPI <span>Rewards</span></span>
+          </a>
+          <p class="footer__blurb">It's time for merchants to earn rewards. Points on every transaction you process, redeemable for the things you actually want.</p>
+          <p class="footer__powered">Powered by <b>TUZO</b></p>
+        </div>
+        <div>
+          <p class="footer__title">Portal</p>
+          <div class="footer__links">
+            <a href="index.html">Dashboard</a>
+            <a href="rewards.html">Rewards Catalog</a>
+            <a href="earnings.html">Earnings Summary</a>
+            <a href="orders.html">Order History</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer__title">Support</p>
+          <div class="footer__links">
+            <a href="mailto:support@wholesalepayments.com">support@wholesalepayments.com</a>
+            <a href="tel:+19293678896">929-367-8896</a>
+            <a href="mailto:support@wholesalepayments.com">Contact Us</a>
+          </div>
+        </div>
+        <div>
+          <p class="footer__title">Legal</p>
+          <div class="footer__links">
+            <a href="terms.html">Terms of Service</a>
+            <a href="privacy.html">Privacy Policy</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer__bottom">
+        <span>© 2026 Wholesale Payments. All rights reserved.</span>
+        <div class="footer__social">
+          <a href="https://www.facebook.com/profile.php?id=61562111483604" aria-label="Facebook" rel="noopener" target="_blank"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 21v-7h2.4l.4-3h-2.8V9.1c0-.9.3-1.5 1.6-1.5h1.3V4.9c-.2 0-1-.1-1.9-.1-1.9 0-3.5 1.2-3.5 3.9V11H8.5v3H11v7z"/></svg></a>
+          <a href="https://x.com/TuzoRewards" aria-label="X" rel="noopener" target="_blank"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.7 3H21l-7.3 8.3L22.2 21h-6.8l-5.3-6.2L4 21H.8l7.8-8.9L.5 3h7l4.8 5.7zm-1.2 16h1.9L6.4 4.9H4.4z"/></svg></a>
+          <a href="https://www.linkedin.com/company/tuzo-rewards/" aria-label="LinkedIn" rel="noopener" target="_blank"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.9 3.5a1.9 1.9 0 1 1 0 3.8 1.9 1.9 0 0 1 0-3.8zM3.3 8.8h3.2V21H3.3zM9 8.8h3.1v1.7h.1c.4-.8 1.5-1.9 3.2-1.9 3.4 0 4 2.2 4 5.2V21h-3.2v-5.6c0-1.3 0-3-1.9-3s-2.1 1.4-2.1 2.9V21H9z"/></svg></a>
+          <a href="https://www.instagram.com/tuzorewards" aria-label="Instagram" rel="noopener" target="_blank"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.2" fill="currentColor" stroke="none"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

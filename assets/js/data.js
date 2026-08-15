@@ -1,0 +1,133 @@
+/* WPI Rewards — portal data
+   Balances, transactions, orders and activity are taken from the captured
+   account snapshot (Colony House Liquor, Aug 15 2026). Catalog entries mirror
+   the live catalog's structure; swap in the full feed when wiring the API. */
+
+window.WPI = (function () {
+  "use strict";
+
+  const account = {
+    business: "Colony House Liquor",
+    initials: "CH",
+    mid: "554402059848457",
+    role: "Merchant Admin",
+    memberSince: "February 2026",
+    availablePoints: 9683,
+    pendingPoints: 43564,
+    get totalPoints() { return this.availablePoints + this.pendingPoints; },
+  };
+
+  const support = {
+    email: "support@wholesalepayments.com",
+    phone: "929-367-8896",
+    phoneHref: "tel:+19293678896",
+  };
+
+  /* categories: gift | luxury | travel | merch */
+  const catalog = [
+    // Gift cards
+    { id: "gc-amazon-50",  cat: "gift", brand: "Amazon",     name: "$50 Amazon Gift Card (Digital)",  desc: "Delivered by email within one business day.", points: 6000 },
+    { id: "gc-amazon-100", cat: "gift", brand: "Amazon",     name: "$100 Amazon Gift Card (Digital)", desc: "Delivered by email within one business day.", points: 12000 },
+    { id: "gc-visa-100",   cat: "gift", brand: "Visa",       name: "$100 Visa Prepaid Card",          desc: "Physical card shipped to your address on file.", points: 12000 },
+    { id: "gc-homedepot",  cat: "gift", brand: "Home Depot", name: "$100 Home Depot Gift Card",       desc: "Digital delivery; redeemable in store or online.", points: 12000 },
+    { id: "gc-bestbuy",    cat: "gift", brand: "Best Buy",   name: "$100 Best Buy Gift Card",         desc: "Digital delivery; redeemable in store or online.", points: 12000 },
+    { id: "gc-starbucks",  cat: "gift", brand: "Starbucks",  name: "$25 Starbucks Gift Card",         desc: "Delivered by email within one business day.", points: 3000 },
+    { id: "gc-doordash",   cat: "gift", brand: "DoorDash",   name: "$50 DoorDash Gift Card",          desc: "Delivered by email within one business day.", points: 6000 },
+    { id: "gc-southwest",  cat: "gift", brand: "Southwest",  name: "$250 Southwest Airlines Gift Card", desc: "Digital delivery; apply toward any flight.", points: 30000 },
+
+    // Merchandise
+    { id: "m-ipad",     cat: "merch", brand: "Apple",     name: "iPad (11-inch, Wi-Fi, 128GB)",         desc: "Ships factory sealed with full warranty.", points: 41280 },
+    { id: "m-airpods",  cat: "merch", brand: "Apple",     name: "AirPods Pro (3rd generation)",          desc: "Ships factory sealed with full warranty.", points: 29900 },
+    { id: "m-macbook",  cat: "merch", brand: "Apple",     name: "MacBook Air 13\" (M4, 256GB)",          desc: "Ships factory sealed with full warranty.", points: 131880 },
+    { id: "m-yeti",     cat: "merch", brand: "Yeti",      name: "Yeti Tundra 65 Hard Cooler",            desc: "Ships direct in 5–7 business days.", points: 43199 },
+    { id: "m-traeger",  cat: "merch", brand: "Traeger",   name: "Traeger Ironwood XL Pellet Grill",      desc: "Freight delivery; curbside drop-off included.", points: 215880 },
+    { id: "m-sonos",    cat: "merch", brand: "Sonos",     name: "Sonos Arc Ultra Soundbar",              desc: "Ships direct in 5–7 business days.", points: 119880 },
+
+    // Travel packages
+    { id: "t-cancun",   cat: "travel", brand: "Getaways", name: "Cancún All-Inclusive — 5 Nights for 2", desc: "Oceanfront resort, airfare credit included.", points: 206880 },
+    { id: "t-vegas",    cat: "travel", brand: "Getaways", name: "Las Vegas Strip — 3 Nights for 2",      desc: "Premium suite plus dining credit.", points: 68880 },
+    { id: "t-hawaii",   cat: "travel", brand: "Getaways", name: "Maui Escape — 7 Nights for 2",          desc: "Beachfront resort, airfare and car included.", points: 772800 },
+    { id: "t-europe",   cat: "travel", brand: "Getaways", name: "Italy Grand Tour — 10 Nights for 2",    desc: "Rome, Florence and Venice with rail passes.", points: 759000 },
+    { id: "t-cruise",   cat: "travel", brand: "Getaways", name: "Caribbean Cruise — 7 Nights, Balcony",  desc: "Balcony stateroom for two, port fees included.", points: 64799 },
+
+    // Luxury goods (as listed in the live catalog)
+    { id: "l-cartier-bb42-gold", cat: "luxury", brand: "Cartier",   name: "Ballon Bleu de Cartier — 42mm Pink Gold, Brown Leather", desc: "18K pink gold case, silver opaline dial, caliber 1847 MC.", points: 2428800 },
+    { id: "l-rolex-sub",         cat: "luxury", brand: "Rolex",     name: "Submariner Date 126610LN",                               desc: "Iconic divers' watch with Cyclops date magnifier.", points: 2015000 },
+    { id: "l-omega-yg",          cat: "luxury", brand: "Omega",     name: "Seamaster Diver 300M — 42mm Steel & Yellow Gold",        desc: "Co-Axial Master Chronometer, blue ceramic dial.", points: 1752600 },
+    { id: "l-omega-sedna",       cat: "luxury", brand: "Omega",     name: "Seamaster Diver 300M — 42mm Steel & Sedna Gold",         desc: "Co-Axial Master Chronometer, black ceramic dial.", points: 1752600 },
+    { id: "l-cartier-bb42-steel", cat: "luxury", brand: "Cartier",  name: "Ballon Bleu de Cartier — 42mm Steel & Yellow Gold",      desc: "Silvered guilloché dial, caliber 1847 MC automatic.", points: 1669800 },
+    { id: "l-cartier-santos-lg", cat: "luxury", brand: "Cartier",   name: "Santos de Cartier — Large, Gold & Steel",                desc: "Yellow gold bezel, silvered opaline dial.", points: 1614600 },
+    { id: "l-cartier-bb36",      cat: "luxury", brand: "Cartier",   name: "Ballon Bleu de Cartier — 36mm Steel & Yellow Gold",      desc: "Interchangeable two-tone strap, automatic movement.", points: 1476600 },
+    { id: "l-cartier-santos-md", cat: "luxury", brand: "Cartier",   name: "Santos de Cartier — Medium, Yellow Gold & Steel",        desc: "Silvered opaline dial, steel bracelet.", points: 1462800 },
+    { id: "l-brt-super-black",   cat: "luxury", brand: "Breitling", name: "Super Chronomat B01 44 — Black Dial, Metal Bracelet",    desc: "Breitling 01 movement, ratcheted rotating bezel.", points: 1407600 },
+    { id: "l-brt-super-blue",    cat: "luxury", brand: "Breitling", name: "Super Chronomat B01 44 — Blue Dial, Metal Bracelet",     desc: "Breitling 01 movement, ratcheted rotating bezel.", points: 1407600 },
+    { id: "l-brt-chronomat36",   cat: "luxury", brand: "Breitling", name: "Chronomat Automatic 36 — Steel & Red Gold",              desc: "Mother-of-pearl dial, steel and red gold bracelet.", points: 1373400 },
+    { id: "l-brt-nav43-black",   cat: "luxury", brand: "Breitling", name: "Navitimer B01 Chronograph 43 — Black Dial",              desc: "Bidirectional slide rule bezel, steel bracelet.", points: 1373400 },
+    { id: "l-brt-nav43-silver",  cat: "luxury", brand: "Breitling", name: "Navitimer B01 Chronograph 43 — Silver Dial",             desc: "Bidirectional slide rule bezel, steel bracelet.", points: 1373400 },
+    { id: "l-brt-nav41-blue",    cat: "luxury", brand: "Breitling", name: "Navitimer B01 Chronograph 41 — Blue Dial",               desc: "Bidirectional slide rule bezel, steel bracelet.", points: 1359600 },
+    { id: "l-brt-nav41-ice",     cat: "luxury", brand: "Breitling", name: "Navitimer B01 Chronograph 41 — Ice Blue Dial",           desc: "Bidirectional slide rule bezel, steel bracelet.", points: 1359600 },
+    { id: "l-brt-super-rubber",  cat: "luxury", brand: "Breitling", name: "Super Chronomat B01 44 — Black Rubber Strap",            desc: "Breitling 01 movement, folding buckle.", points: 1352400 },
+  ];
+
+  /* Processing transactions → points earned (captured from the account) */
+  const transactions = [
+    { date: "2026-08-13", amount: 2494.15, points: 499 },
+    { date: "2026-08-12", amount: 2924.53, points: 585 },
+    { date: "2026-08-11", amount: 2599.36, points: 520 },
+    { date: "2026-08-10", amount: 3803.97, points: 761 },
+    { date: "2026-08-09", amount: 8217.32, points: 1643 },
+    { date: "2026-08-07", amount: 2063.74, points: 413 },
+    { date: "2026-08-06", amount: 1858.72, points: 372 },
+    { date: "2026-08-05", amount: 2142.09, points: 428 },
+    { date: "2026-08-04", amount: 2349.26, points: 470 },
+    { date: "2026-08-03", amount: 4414.75, points: 883 },
+    { date: "2026-08-02", amount: 6656.38, points: 1331 },
+    { date: "2026-07-31", amount: 2474.89, points: 495 },
+    { date: "2026-07-30", amount: 1884.45, points: 377 },
+    { date: "2026-07-29", amount: 1788.89, points: 358 },
+    { date: "2026-07-28", amount: 2704.59, points: 541 },
+    { date: "2026-07-27", amount: 3811.15, points: 762 },
+    { date: "2026-07-26", amount: 9086.89, points: 1817 },
+    { date: "2026-07-24", amount: 3036.41, points: 607 },
+    { date: "2026-07-23", amount: 1887.13, points: 377 },
+    { date: "2026-07-22", amount: 1950.90, points: 390 },
+    { date: "2026-07-21", amount: 2067.88, points: 414 },
+    { date: "2026-07-20", amount: 4405.52, points: 881 },
+    { date: "2026-07-19", amount: 8737.72, points: 1748 },
+    { date: "2026-07-17", amount: 2612.51, points: 523 },
+    { date: "2026-07-16", amount: 2441.19, points: 488 },
+    { date: "2026-07-15", amount: 1914.07, points: 383 },
+    { date: "2026-07-14", amount: 2202.99, points: 441 },
+    { date: "2026-07-13", amount: 3130.80, points: 626 },
+    { date: "2026-07-12", amount: 8642.08, points: 1728 },
+    { date: "2026-07-10", amount: 1941.52, points: 388 },
+  ];
+
+  const orders = [
+    { id: "ORD-B830205F82", productId: "gc-amazon-100", name: "$100 Amazon Gift Card (Digital)", date: "2026-07-27", qty: 1, points: 12000, status: "Confirmed" },
+    { id: "ORD-08BED175D9", productId: "gc-amazon-100", name: "$100 Amazon Gift Card (Digital)", date: "2026-07-03", qty: 1, points: 12000, status: "Confirmed" },
+    { id: "ORD-8D74F8CD9D", productId: "gc-amazon-100", name: "$100 Amazon Gift Card (Digital)", date: "2026-06-03", qty: 1, points: 12000, status: "Confirmed" },
+  ];
+
+  const faq = [
+    { q: "How does the rewards program work?",
+      a: "Every payment you process through Wholesale Payments earns reward points automatically — no enrollment steps and nothing extra at the terminal. Points accrue daily and appear here in your portal, where you can redeem them for gift cards, merchandise, travel and more." },
+    { q: "What can I redeem points for?",
+      a: "The catalog covers digital gift cards from major brands, name-brand merchandise, luxury goods and fully packaged travel experiences. Use the \"Within my points\" toggle in the catalog to see everything you can redeem today." },
+    { q: "Can I give my points to an employee or a customer?",
+      a: "Yes. Many merchants redeem points for gift cards and pass them along as staff incentives or customer thank-yous. Contact support if you'd like help setting up a recurring employee-rewards routine." },
+    { q: "Do my points expire?",
+      a: "Points stay in your account as long as your processing account remains active and in good standing. There is no scheduled expiration, so you can save toward larger rewards." },
+    { q: "When do my points move from Pending to Available?",
+      a: "Points earned on recent transactions are held as Pending while the underlying batches settle, then automatically become Available for redemption — typically after the settlement cycle completes." },
+    { q: "How do reward goals work?",
+      a: "Add any catalog item as a goal and your dashboard will track your progress toward it as points accrue, so you always know how close you are to the reward you actually want." },
+  ];
+
+  const fmt = new Intl.NumberFormat("en-US");
+  const fmtUsd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" });
+  const fmtDate = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const fmtDateLong = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
+  return { account, support, catalog, transactions, orders, faq, fmt, fmtUsd, fmtDate, fmtDateLong };
+})();
