@@ -134,21 +134,6 @@ ul, ol { list-style: none; padding: 0; }
   border: 0;
 }
 
-.skip-link {
-  position: fixed;
-  top: 10px; left: 50%;
-  transform: translate(-50%, -160%);
-  z-index: 300;
-  padding: 11px 20px;
-  border-radius: var(--r-pill);
-  background: var(--ink);
-  color: #fff;
-  font-size: 14px;
-  font-weight: 500;
-  transition: transform var(--t) var(--ease-out);
-}
-.skip-link:focus { transform: translate(-50%, 0); }
-
 /* --------------------------------------------------------------------------
    3. Typography
    -------------------------------------------------------------------------- */

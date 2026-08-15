@@ -9,8 +9,6 @@
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body data-page="dashboard">
-  <a class="skip-link" href="#main">Skip to content</a>
-
   <header class="site-header">
     <nav class="nav" aria-label="Primary">
       <a class="brand" href="index.html">
@@ -92,13 +90,13 @@
           <p class="fine" style="margin-top:18px">Pending points become available automatically once your recent batches settle.</p>
         </section>
 
-        <section class="card span-2" data-reveal style="--d:1" aria-labelledby="chart-title">
+        <section class="card span-2" data-reveal style="--d:1" aria-labelledby="reach-title">
           <div class="section-title" style="margin-bottom:6px">
-            <h2 class="h3" id="chart-title">Points Earned Over Time</h2>
-            <span class="fine tabular">Last 30 settlement days</span>
+            <h2 class="h3" id="reach-title">Within Your Reach</h2>
+            <a class="link" href="rewards.html?afford=1">See all you can redeem today</a>
           </div>
-          <p class="fine" style="margin-bottom:14px">Daily points earned on card processing. Hover for the day's detail.</p>
-          <div class="viz" data-line-chart></div>
+          <p class="fine" style="margin-bottom:14px">Rewards you can redeem right now with your available points — or get to fastest.</p>
+          <div class="rail" data-featured></div>
         </section>
       </div>
 
@@ -117,49 +115,6 @@
           <div class="viz" data-proj-chart></div>
           <p class="fine" style="margin-top:12px">Projections are estimates based on your recent processing volume — actual earnings will vary with your sales.</p>
         </div>
-      </section>
-
-      <!-- Ways to spend -->
-      <section class="section-gap" aria-labelledby="spend-title">
-        <div class="section-title">
-          <h2 class="h2" id="spend-title">Ways to Spend Your Points</h2>
-          <a class="link" href="rewards.html">Browse everything</a>
-        </div>
-        <div class="grid grid-3">
-          <a class="card card--hover" href="rewards.html?cat=gift" data-reveal>
-            <div class="card__icon">
-              <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="8.5" width="17" height="12" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8.5V20.5M3.5 13h17M12 8.5c-2.3 0-4.6-1-4.6-3a2.1 2.1 0 0 1 4.2-.6c.3.9.4 2.4.4 3.6zm0 0c2.3 0 4.6-1 4.6-3a2.1 2.1 0 0 0-4.2-.6c-.3.9-.4 2.4-.4 3.6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-            </div>
-            <h3 class="h3">Gift Cards</h3>
-            <p class="small" style="margin-top:8px">The most popular redemption — digital cards from major brands, delivered in a day.</p>
-            <span class="link" style="margin-top:14px">Shop gift cards</span>
-          </a>
-          <a class="card card--hover" href="rewards.html?cat=travel" data-reveal style="--d:1">
-            <div class="card__icon card__icon--mint">
-              <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M10.2 13.8 3 11.4l1.5-1.5 5.6.7 4.7-4.7a1.7 1.7 0 0 1 2.4 2.4l-4.7 4.7.7 5.6-1.5 1.5-2.4-7.2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
-            </div>
-            <h3 class="h3">Travel Packages</h3>
-            <p class="small" style="margin-top:8px">Fully packaged getaways for two — resorts, cruises and city escapes.</p>
-            <span class="link" style="margin-top:14px">Explore travel</span>
-          </a>
-          <a class="card card--hover" href="rewards.html?cat=luxury" data-reveal style="--d:2">
-            <div class="card__icon card__icon--amber">
-              <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 9.4V12l1.9 1.4M9 6.6 9.6 2h4.8L15 6.6M9 17.4 9.6 22h4.8l.6-4.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <h3 class="h3">Luxury Goods</h3>
-            <p class="small" style="margin-top:8px">Cartier, Rolex, Omega, Breitling — save toward something exceptional.</p>
-            <span class="link" style="margin-top:14px">See the collection</span>
-          </a>
-        </div>
-      </section>
-
-      <!-- Featured rewards rail -->
-      <section class="section-gap" aria-labelledby="featured-title">
-        <div class="section-title">
-          <h2 class="h2" id="featured-title">Within Your Reach</h2>
-          <a class="link" href="rewards.html?afford=1">See all you can redeem today</a>
-        </div>
-        <div class="rail" data-featured></div>
       </section>
 
       <!-- Activity + promo -->
