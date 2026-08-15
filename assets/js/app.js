@@ -809,7 +809,12 @@
     const pendingEl = $("[data-demo-pending]");
     const availableEl = $("[data-demo-available]");
     const sqt = $("[data-demo-sqt]");
+    const sqtCard = $(".sqt__card", sqt);
     const screen = $("[data-demo-screen]");
+    function setPose(name) {
+      sqtCard.style.transform = sqtCard.getAttribute("data-m-" + name);
+      sqt.classList.toggle("is-resting", name === "rest");
+    }
 
     const DEMO_REWARDS = [
       { id: "coffee", name: "Coffee for the Team", pts: 60, icon: "gift" },
@@ -845,10 +850,10 @@
       const pts = Math.round(amount * 0.2);
       screen.textContent = D.fmtUsd.format(amount).replace(".00", "");
       await sleep(950);
-      sqt.classList.add("is-align");
-      await sleep(900);
-      sqt.classList.add("is-in");
-      await sleep(1100);
+      setPose("align");
+      await sleep(1000);
+      setPose("in");
+      await sleep(1150);
       screen.textContent = "Approved ✓";
       sqt.classList.add("is-ok");
       const chip = document.createElement("span");
@@ -861,10 +866,10 @@
       state.pending += pts;
       syncBalances(true);
       await sleep(1300);
-      sqt.classList.remove("is-in");
-      await sleep(700);
-      sqt.classList.remove("is-align");
-      await sleep(900);
+      setPose("align");
+      await sleep(800);
+      setPose("rest");
+      await sleep(950);
       screen.textContent = "Ready";
       sqt.classList.remove("is-ok");
       await sleep(650);
@@ -932,7 +937,8 @@
       state.pending = 0;
       state.available = 0;
       syncBalances(false);
-      sqt.classList.remove("is-align", "is-in", "is-ok");
+      sqt.classList.remove("is-ok");
+      setPose("rest");
       screen.textContent = "Ready";
       $("[data-demo-finish]").hidden = true;
       $("[data-demo-copy3]").textContent =

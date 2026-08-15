@@ -1339,11 +1339,11 @@ select.input {
 .demo-balance b { font-weight: 650; color: var(--ink); font-variant-numeric: tabular-nums; }
 .demo-balance.bump b { animation: badge-bump 460ms var(--ease-spring); display: inline-block; }
 
-.demo-step {
-  display: none;
+.demo-step { display: none; }
+.demo-step.is-active {
+  display: block;
   animation: demo-in 480ms var(--ease-out) both;
 }
-.demo-step.is-active { display: block; }
 @keyframes demo-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
 .demo-stage {
@@ -1370,16 +1370,14 @@ select.input {
 .sqt.is-ok .sqt__amt { fill: #0d8a55; }
 
 .sqt__card {
-  transform: translate(318px, 54px) rotate(16deg);
+  transform: translate(320px, 52px) rotate(14deg);
   transform-box: view-box;
-  transition: transform 1000ms cubic-bezier(0.35, 0.72, 0.25, 1);
+  transition: transform 1100ms cubic-bezier(0.35, 0.72, 0.25, 1);
   filter: drop-shadow(-6px 8px 10px rgba(30, 136, 247, 0.22)) drop-shadow(6px 8px 10px rgba(53, 208, 122, 0.2));
 }
-.sqt.is-align .sqt__card { transform: translate(240px, 88px) rotate(-10deg); }
-.sqt.is-in .sqt__card { transform: translate(233px, 146px) rotate(-10deg); }
 
-.sqt__cardbob { animation: sqt-bob 3.4s var(--ease) infinite alternate; }
-.sqt.is-align .sqt__cardbob, .sqt.is-in .sqt__cardbob { animation: none; }
+.sqt__cardbob { animation: none; }
+.sqt.is-resting .sqt__cardbob { animation: sqt-bob 3.4s var(--ease) infinite alternate; }
 @keyframes sqt-bob {
   from { transform: translateY(0); }
   to { transform: translateY(-7px); }
