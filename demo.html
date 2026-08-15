@@ -85,21 +85,69 @@
         <!-- Step 1: sales run through the terminal -->
         <div class="demo-step is-active" data-demo-step="1">
           <div class="demo-stage">
-            <div class="pos">
-              <div class="pos__card" data-demo-card>
-                <span class="pos__chip"></span>
-                <svg class="pos__wave" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8.5 9.5a5 5 0 0 1 0 5"/><path d="M11.5 7.5a8 8 0 0 1 0 9"/><path d="M14.5 5.5a11 11 0 0 1 0 13"/></svg>
-                <span class="pos__num">•••• 4629</span>
-              </div>
-              <div class="pos__term">
-                <div class="pos__screen">
-                  <svg class="pos__tap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M6.5 8a7.5 7.5 0 0 1 0 8"/><path d="M9.8 6a11 11 0 0 1 0 12"/><path d="M13.1 4a14.5 14.5 0 0 1 0 16"/></svg>
-                  <span data-demo-screen>Ready</span>
-                </div>
-                <div class="pos__lip"><span class="pos__slot" aria-hidden="true"></span></div>
-              </div>
+            <div class="sqt-wrap">
+              <svg class="sqt" data-demo-sqt viewBox="0 0 380 300" aria-hidden="true">
+                <defs>
+                  <radialGradient id="sqtShadow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#0d1636" stop-opacity="0.20"/>
+                    <stop offset="100%" stop-color="#0d1636" stop-opacity="0"/>
+                  </radialGradient>
+                  <linearGradient id="sqtTop" x1="0" y1="0" x2="0.2" y2="1">
+                    <stop offset="0%" stop-color="#ffffff"/>
+                    <stop offset="100%" stop-color="#eef1f7"/>
+                  </linearGradient>
+                  <linearGradient id="sqtFront" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#fbfcfe"/>
+                    <stop offset="100%" stop-color="#e3e8f0"/>
+                  </linearGradient>
+                  <linearGradient id="sqtScrB" x1="0" y1="0" x2="0.3" y2="1">
+                    <stop offset="0%" stop-color="#dcebfd"/>
+                    <stop offset="100%" stop-color="#c3dcfa"/>
+                  </linearGradient>
+                  <linearGradient id="sqtScrG" x1="0" y1="0" x2="0.3" y2="1">
+                    <stop offset="0%" stop-color="#d8f5e6"/>
+                    <stop offset="100%" stop-color="#bfeed6"/>
+                  </linearGradient>
+                  <linearGradient id="sqtCard" x1="0" y1="0" x2="0.4" y2="1">
+                    <stop offset="0%" stop-color="#eaf3fe"/>
+                    <stop offset="55%" stop-color="#f7fbff"/>
+                    <stop offset="100%" stop-color="#e8f8ef"/>
+                  </linearGradient>
+                </defs>
+
+                <ellipse cx="195" cy="264" rx="158" ry="18" fill="url(#sqtShadow)"/>
+
+                <!-- top face / screen bezel -->
+                <path d="M56 70 Q52 66 58 62 L252 32 Q262 30 266 38 L302 136 Q306 146 296 150 L104 186 Q94 188 90 179 Z" fill="url(#sqtTop)" stroke="rgba(13,22,54,0.08)"/>
+                <!-- screen -->
+                <path class="sqt__screenfill" d="M74 76 L246 49 Q254 48 257 55 L286 130 Q289 138 281 140 L112 171 Q104 173 101 165 Z" fill="url(#sqtScrB)" stroke="rgba(13,22,54,0.07)"/>
+                <g transform="rotate(-9 180 110)">
+                  <path d="M223 88 a13 13 0 0 1 0 26 M229 80 a21 21 0 0 1 0 42 M235 72 a29 29 0 0 1 0 58" fill="none" stroke="#16255f" stroke-opacity="0.4" stroke-width="2.4" stroke-linecap="round" transform="rotate(90 229 101)"/>
+                  <text class="sqt__amt" data-demo-screen x="86" y="118">Ready</text>
+                </g>
+
+                <!-- card (painted after screen, before front face → slides INTO the slot) -->
+                <g class="sqt__card">
+                  <g class="sqt__cardbob">
+                    <rect x="-31" y="-46" width="62" height="92" rx="9" fill="url(#sqtCard)" stroke="rgba(13,22,54,0.10)"/>
+                    <rect x="-19" y="-30" width="15" height="11" rx="2.5" fill="#e8c876" stroke="rgba(13,22,54,0.12)"/>
+                    <path d="M12 -32 a8 8 0 0 1 0 16 M17 -37 a14 14 0 0 1 0 26" fill="none" stroke="#aeaeb2" stroke-width="1.6" stroke-linecap="round"/>
+                    <text x="-22" y="38" font-size="8.5" letter-spacing="1" fill="#86868b" font-weight="600">•••• 4629</text>
+                  </g>
+                </g>
+
+                <!-- right side sliver -->
+                <path d="M296 150 L302 136 L312 160 L306 174 Z" fill="#dde3ec"/>
+
+                <!-- front face with slot -->
+                <path d="M90 179 Q94 188 104 186 L296 150 Q306 148 308 158 L312 208 Q313 218 303 220 L106 250 Q96 252 94 242 Z" fill="url(#sqtFront)" stroke="rgba(13,22,54,0.08)"/>
+                <line x1="128" y1="203" x2="272" y2="178" stroke="#c2cad9" stroke-width="8" stroke-linecap="round"/>
+                <line x1="132" y1="203" x2="268" y2="179.5" stroke="#8f99ad" stroke-width="3.4" stroke-linecap="round"/>
+
+                <!-- base -->
+                <path d="M94 242 Q96 252 106 250 L303 220 Q313 218 312 208 L314 224 Q315 234 305 236 L108 266 Q98 268 96 258 Z" fill="#d3d9e4"/>
+              </svg>
             </div>
-          </div>
           <h2 class="h3">1 · Your customers pay like always</h2>
           <p class="demo-copy">Every card your terminal runs earns points automatically — nothing extra at checkout.</p>
         </div>

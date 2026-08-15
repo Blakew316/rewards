@@ -808,9 +808,8 @@
 
     const pendingEl = $("[data-demo-pending]");
     const availableEl = $("[data-demo-available]");
-    const card = $("[data-demo-card]");
+    const sqt = $("[data-demo-sqt]");
     const screen = $("[data-demo-screen]");
-    const screenBox = screen.closest(".pos__screen");
 
     const DEMO_REWARDS = [
       { id: "coffee", name: "Coffee for the Team", pts: 60, icon: "gift" },
@@ -846,10 +845,12 @@
       const pts = Math.round(amount * 0.2);
       screen.textContent = D.fmtUsd.format(amount).replace(".00", "");
       await sleep(950);
-      card.classList.add("is-dipping");
-      await sleep(1050);
+      sqt.classList.add("is-align");
+      await sleep(900);
+      sqt.classList.add("is-in");
+      await sleep(1100);
       screen.textContent = "Approved ✓";
-      screenBox.classList.add("is-ok");
+      sqt.classList.add("is-ok");
       const chip = document.createElement("span");
       chip.className = "points-fly";
       chip.textContent = "+" + pts + " pts";
@@ -860,10 +861,12 @@
       state.pending += pts;
       syncBalances(true);
       await sleep(1300);
-      card.classList.remove("is-dipping");
-      await sleep(950);
+      sqt.classList.remove("is-in");
+      await sleep(700);
+      sqt.classList.remove("is-align");
+      await sleep(900);
       screen.textContent = "Ready";
-      screenBox.classList.remove("is-ok");
+      sqt.classList.remove("is-ok");
       await sleep(650);
     }
 
@@ -929,9 +932,8 @@
       state.pending = 0;
       state.available = 0;
       syncBalances(false);
-      card.classList.remove("is-dipping");
+      sqt.classList.remove("is-align", "is-in", "is-ok");
       screen.textContent = "Ready";
-      screenBox.classList.remove("is-ok");
       $("[data-demo-finish]").hidden = true;
       $("[data-demo-copy3]").textContent =
         "Your available points cover real rewards — gift cards, merchandise, even travel.";

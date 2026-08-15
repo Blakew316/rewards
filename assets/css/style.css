@@ -1355,95 +1355,34 @@ select.input {
 }
 .demo-copy { color: var(--ink-2); max-width: 46ch; margin: 8px auto 20px; font-size: 0.9375rem; }
 
-/* POS terminal — countertop touchscreen unit; card dips into the front slot */
-.pos {
-  position: relative;
-  width: 300px;
-  height: 296px;
-  margin-inline: auto;
-}
-.pos__term {
-  position: absolute;
-  left: 0;
-  bottom: 8px;
-  width: 234px;
-  border-radius: 26px;
-  background: linear-gradient(172deg, #ffffff 0%, #f4f6fa 66%, #eff6f2 100%);
-  border: 1px solid var(--line-2);
-  padding: 12px;
-  box-shadow: var(--glow-brand);
-}
-.pos__screen {
-  height: 120px;
-  border-radius: 16px;
-  background: linear-gradient(165deg, var(--blue-050) 0%, #dcebfd 100%);
-  border: 1px solid var(--line-2);
-  color: var(--navy-700);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  padding: 20px 0 0 20px;
-  font-size: 1rem;
+/* Countertop terminal illustration — card slides into the front slot */
+.sqt-wrap { width: min(380px, 92vw); margin-inline: auto; }
+.sqt { width: 100%; height: auto; display: block; overflow: visible; }
+.sqt__amt {
+  font-family: var(--font-sans);
+  font-size: 21px;
   font-weight: 650;
   letter-spacing: -0.01em;
+  fill: var(--navy-700);
   font-variant-numeric: tabular-nums;
-  transition: color var(--t) var(--ease), background var(--t) var(--ease);
 }
-.pos__screen.is-ok { color: var(--mint); background: linear-gradient(165deg, var(--green-050) 0%, #d8f5e6 100%); }
-.pos__tap { width: 20px; height: 20px; opacity: 0.55; transform: rotate(90deg); }
-.pos__lip {
-  position: relative;
-  z-index: 3;
-  margin-top: 10px;
-  height: 42px;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #fbfcfe, #eef1f6);
-  border: 1px solid var(--line-2);
-  display: grid;
-  place-items: center;
-}
-.pos__slot {
-  display: block;
-  width: 78%;
-  height: 7px;
-  border-radius: 3.5px;
-  background: linear-gradient(180deg, #ccd3e0, #e8ecf2);
-  box-shadow: inset 0 1.5px 3px rgba(13, 22, 54, 0.3);
-}
+.sqt.is-ok .sqt__screenfill { fill: url(#sqtScrG); }
+.sqt.is-ok .sqt__amt { fill: #0d8a55; }
 
-.pos__card {
-  position: absolute;
-  z-index: 2;
-  top: 0;
-  right: 0;
-  width: 86px; height: 122px;
-  border-radius: 12px;
-  background: linear-gradient(160deg, #eaf3fe 0%, #f7fbff 52%, #e8f8ef 100%);
-  border: 1px solid var(--line-2);
-  color: var(--navy-700);
-  box-shadow: -8px 10px 22px -12px rgba(30, 136, 247, 0.35), 8px 10px 22px -12px rgba(53, 208, 122, 0.32);
-  text-align: left;
-  padding: 10px;
-  transform: rotate(10deg);
-  transition: transform 900ms var(--ease);
+.sqt__card {
+  transform: translate(318px, 54px) rotate(16deg);
+  transform-box: view-box;
+  transition: transform 1000ms cubic-bezier(0.35, 0.72, 0.25, 1);
+  filter: drop-shadow(-6px 8px 10px rgba(30, 136, 247, 0.22)) drop-shadow(6px 8px 10px rgba(53, 208, 122, 0.2));
 }
-.pos__card.is-dipping { transform: translate(-64px, 128px) rotate(0deg); }
-.pos__chip {
-  display: block;
-  width: 22px; height: 17px;
-  border-radius: 4px;
-  background: linear-gradient(135deg, #f4dc9a, #ddb45e);
-  border: 1px solid rgba(13, 22, 54, 0.12);
-}
-.pos__wave { position: absolute; top: 10px; right: 8px; width: 18px; height: 18px; color: var(--ink-4); transform: rotate(90deg); }
-.pos__num {
-  position: absolute;
-  left: 10px; bottom: 9px;
-  font-size: 0.6875rem;
-  font-weight: 550;
-  letter-spacing: 0.08em;
-  color: var(--ink-3);
+.sqt.is-align .sqt__card { transform: translate(240px, 88px) rotate(-10deg); }
+.sqt.is-in .sqt__card { transform: translate(233px, 146px) rotate(-10deg); }
+
+.sqt__cardbob { animation: sqt-bob 3.4s var(--ease) infinite alternate; }
+.sqt.is-align .sqt__cardbob, .sqt.is-in .sqt__cardbob { animation: none; }
+@keyframes sqt-bob {
+  from { transform: translateY(0); }
+  to { transform: translateY(-7px); }
 }
 
 .points-fly {
