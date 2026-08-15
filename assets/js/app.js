@@ -266,11 +266,14 @@
     );
   }
 
-  function productCard(p) {
+  function productCard(p, opts) {
     const afford = p.points <= D.account.availablePoints;
+    const badge = opts && typeof opts === "object" && opts.badge
+      ? '<span class="product__flag product__flag--' + opts.badge.kind + '">' + opts.badge.text + "</span>"
+      : "";
     return (
       '<article class="product' + (afford ? " product--afford" : "") + '" data-id="' + p.id + '">' +
-      productArt(p) +
+      productArt(p).replace("</div>", badge + "</div>") +
       '<div class="product__body">' +
       '<span class="product__cat">' + CAT_META[p.cat].label + "</span>" +
       '<h3 class="product__name">' + p.name + "</h3>" +
@@ -506,23 +509,44 @@
 
     const rail = $("[data-featured]");
     if (rail) {
-      const featured = D.catalog
-        .filter((p) => p.cat !== "luxury" || p.points < 1500000)
-        .sort((x, yv) => x.points - yv.points)
-        .slice(0, 10);
-      rail.innerHTML = featured.map(productCard).join("");
+      const avail = D.account.availablePoints;
+      const total = D.account.totalPoints;
+      const now = D.catalog
+        .filter((p) => p.points <= avail)
+        .sort((a, b) => b.points - a.points);
+      const soon = D.catalog
+        .filter((p) => p.points > avail && p.points <= total)
+        .sort((a, b) => a.points - b.points);
+      rail.innerHTML =
+        now.map((p) => productCard(p, { badge: { kind: "now", text: "Redeem now" } })).join("") +
+        soon.map((p) => productCard(p, { badge: { kind: "soon", text: "As pending settles" } })).join("");
+
+      const prev = $("[data-rail-prev]");
+      const next = $("[data-rail-next]");
+      if (prev && next) {
+        const step = () => Math.max(220, rail.clientWidth * 0.8);
+        prev.addEventListener("click", () => rail.scrollBy({ left: -step(), behavior: "smooth" }));
+        next.addEventListener("click", () => rail.scrollBy({ left: step(), behavior: "smooth" }));
+        const sync = () => {
+          prev.disabled = rail.scrollLeft <= 4;
+          next.disabled = rail.scrollLeft >= rail.scrollWidth - rail.clientWidth - 4;
+        };
+        rail.addEventListener("scroll", sync, { passive: true });
+        window.addEventListener("resize", sync);
+        sync();
+      }
     }
 
     const act = $("[data-activity]");
     if (act) {
-      const rows = allOrders().slice(0, 4).map((o) =>
+      const rows = allOrders().slice(0, 6).map((o) =>
         '<div class="row-list__item">' +
         '<div class="row-list__icon">' + svgIcon("gift", 20) + "</div>" +
         '<div class="row-list__body"><b>Redeemed ' + o.name + "</b><span>" + D.fmtDate(o.date) + "</span></div>" +
         '<div class="row-list__value is-neg tabular">−' + D.fmt.format(o.points) + " pts</div>" +
         "</div>"
       );
-      const recent = D.transactions.slice(0, 2).map((t) =>
+      const recent = D.transactions.slice(0, 5).map((t) =>
         '<div class="row-list__item">' +
         '<div class="row-list__icon">' + svgIcon("trend", 20) + "</div>" +
         '<div class="row-list__body"><b>Points earned on processing</b><span>' + D.fmtDate(t.date) + " · " + D.fmtUsd.format(t.amount) + " processed</span></div>" +
@@ -803,5 +827,10 @@
     initReveals();
     initAccordions();
     initCountups();
+
+    // PWA: offline shell + installability (service workers need http/https)
+    if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    }
   });
 })();

@@ -2,10 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Dashboard — WPI Rewards</title>
   <meta name="description" content="Track your reward points, watch your balance grow, and redeem for gift cards, travel and more.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='5' y='13' width='9' height='40' rx='4.5' fill='%231e88f7'/%3E%3Crect x='19' y='5' width='19' height='54' rx='6' fill='%2317b060'/%3E%3Crect x='19' y='5' width='19' height='19' rx='6' fill='%232196f3'/%3E%3Crect x='43' y='17' width='9' height='40' rx='4.5' fill='%2335d07a'/%3E%3C/svg%3E">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="WPI Rewards">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body data-page="dashboard">
@@ -93,9 +100,17 @@
         <section class="card span-2" data-reveal style="--d:1" aria-labelledby="reach-title">
           <div class="section-title" style="margin-bottom:6px">
             <h2 class="h3" id="reach-title">Within Your Reach</h2>
-            <a class="link" href="rewards.html?afford=1">See all you can redeem today</a>
+            <div class="rail-ctrl">
+              <a class="link" href="rewards.html?afford=1">See all</a>
+              <button class="rail-btn" data-rail-prev aria-label="Scroll back" disabled>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="14.5 5.5 8 12 14.5 18.5"/></svg>
+              </button>
+              <button class="rail-btn" data-rail-next aria-label="Scroll forward">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9.5 5.5 16 12 9.5 18.5"/></svg>
+              </button>
+            </div>
           </div>
-          <p class="fine" style="margin-bottom:14px">Rewards you can redeem right now with your available points — or get to fastest.</p>
+          <p class="fine" style="margin-bottom:14px">Everything your points can get you — redeemable now, plus what unlocks once pending points settle.</p>
           <div class="rail" data-featured></div>
         </section>
       </div>
@@ -117,25 +132,14 @@
         </div>
       </section>
 
-      <!-- Activity + promo -->
-      <div class="grid grid-3 section-gap">
-        <section class="card span-2" data-reveal aria-labelledby="activity-title">
-          <div class="section-title" style="margin-bottom:8px">
-            <h2 class="h3" id="activity-title">Recent Activity</h2>
-            <a class="link" href="earnings.html">Full history</a>
-          </div>
-          <div class="row-list" data-activity></div>
-        </section>
-
-        <section class="card promo" data-reveal style="--d:1">
-          <h3 class="h3" style="margin-bottom:10px">Your rewards can take you places</h3>
-          <p class="small">You're earning on every card transaction you process — no extra steps, no enrollment forms. Set a goal and watch your balance climb toward it.</p>
-          <div style="margin-top:22px" class="btn-row">
-            <a class="btn btn--primary btn--sm" href="rewards.html?cat=travel">Book Travel</a>
-            <a class="btn btn--ghost btn--sm" href="rewards.html">Set a Goal</a>
-          </div>
-        </section>
-      </div>
+      <!-- Activity -->
+      <section class="card section-gap" data-reveal aria-labelledby="activity-title">
+        <div class="section-title" style="margin-bottom:8px">
+          <h2 class="h3" id="activity-title">Recent Activity</h2>
+          <a class="link" href="earnings.html">Full history</a>
+        </div>
+        <div class="row-list row-list--split" data-activity></div>
+      </section>
 
       <!-- FAQ -->
       <section class="section-gap container--narrow" style="margin-inline:auto" aria-labelledby="faq-title">
