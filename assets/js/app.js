@@ -810,6 +810,7 @@
     const availableEl = $("[data-demo-available]");
     const card = $("[data-demo-card]");
     const screen = $("[data-demo-screen]");
+    const screenBox = screen.closest(".pos__screen");
 
     const DEMO_REWARDS = [
       { id: "coffee", name: "Coffee for the Team", pts: 60, icon: "gift" },
@@ -841,43 +842,44 @@
     }
 
     async function runSale() {
-      const amount = 80 + Math.round(Math.random() * 42) * 10;
-      const pts = Math.max(15, Math.round(amount * 0.2));
+      const amount = 320 + Math.round(Math.random() * 40) * 10;
+      const pts = Math.round(amount * 0.2);
       screen.textContent = D.fmtUsd.format(amount).replace(".00", "");
-      await sleep(420);
+      await sleep(950);
       card.classList.add("is-dipping");
-      await sleep(680);
+      await sleep(1050);
       screen.textContent = "Approved ✓";
-      screen.classList.add("is-ok");
+      screenBox.classList.add("is-ok");
       const chip = document.createElement("span");
       chip.className = "points-fly";
       chip.textContent = "+" + pts + " pts";
       chip.style.left = "50%";
-      chip.style.top = "22%";
+      chip.style.top = "16%";
       $(".demo-stage", $('[data-demo-step="1"]')).appendChild(chip);
-      setTimeout(() => chip.remove(), 1150);
+      setTimeout(() => chip.remove(), 1250);
       state.pending += pts;
       syncBalances(true);
-      await sleep(760);
+      await sleep(1300);
       card.classList.remove("is-dipping");
+      await sleep(950);
       screen.textContent = "Ready";
-      screen.classList.remove("is-ok");
-      await sleep(420);
+      screenBox.classList.remove("is-ok");
+      await sleep(650);
     }
 
     function animateSettle() {
       return new Promise((resolve) => {
         const flow = $("[data-demo-flow]");
         const moving = state.pending;
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < 9; i++) {
           setTimeout(() => {
             const dot = document.createElement("i");
             flow.appendChild(dot);
             setTimeout(() => dot.remove(), 720);
-          }, i * 110);
+          }, i * 160);
         }
         const start = performance.now();
-        const dur = reduce ? 90 : 950;
+        const dur = reduce ? 90 : 1550;
         const tick = (now) => {
           const t = Math.min(1, (now - start) / dur);
           const eased = 1 - Math.pow(1 - t, 3);
@@ -929,26 +931,26 @@
       syncBalances(false);
       card.classList.remove("is-dipping");
       screen.textContent = "Ready";
-      screen.classList.remove("is-ok");
+      screenBox.classList.remove("is-ok");
       $("[data-demo-finish]").hidden = true;
       $("[data-demo-copy3]").textContent =
         "Your available points cover real rewards — gift cards, merchandise, even travel.";
       goStep(1);
-      await sleep(700);
+      await sleep(1500);
 
-      for (let i = 0; i < 3; i++) await runSale();
-      await sleep(500);
+      for (let i = 0; i < 2; i++) await runSale();
+      await sleep(900);
 
       goStep(2);
       $("[data-bucket-pending-n]").textContent = D.fmt.format(state.pending);
       $("[data-bucket-avail-n]").textContent = D.fmt.format(state.available);
-      await sleep(900);
+      await sleep(1400);
       await animateSettle();
-      await sleep(800);
+      await sleep(1200);
 
       goStep(3);
       renderDemoRewards();
-      await sleep(1100);
+      await sleep(1800);
       const affordable = DEMO_REWARDS.filter((r) => r.pts <= state.available);
       const pick = affordable[affordable.length - 1] || DEMO_REWARDS[0];
       const el = $('[data-reward="' + pick.id + '"]');
