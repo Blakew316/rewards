@@ -404,6 +404,97 @@
   }
 
   /* ------------------------------------------------------------------
+     Earnings projection — rate derived from the captured 30-day window
+     ------------------------------------------------------------------ */
+  function monthlyRate() {
+    const tx = D.transactions;
+    const total = tx.reduce((n, t) => n + t.points, 0);
+    const first = new Date(tx[tx.length - 1].date + "T12:00:00");
+    const last = new Date(tx[0].date + "T12:00:00");
+    const days = Math.max(1, Math.round((last - first) / 86400000) + 1);
+    return Math.round((total / days) * 30.44);
+  }
+
+  function renderProjection() {
+    const host = $("[data-projection]");
+    if (!host) return;
+    const rate = monthlyRate();
+    const note = $("[data-proj-note]");
+    if (note) note.textContent = "Based on your current pace of ~" + D.fmt.format(rate) + " pts/month";
+
+    const byPointsDesc = D.catalog.slice().sort((a, b) => b.points - a.points);
+    const TERMS = [
+      { m: 3, label: "In 3 Months" },
+      { m: 6, label: "In 6 Months" },
+      { m: 12, label: "In 12 Months" },
+    ];
+    host.innerHTML = TERMS.map((t, i) => {
+      const projected = D.account.totalPoints + rate * t.m;
+      const dollars = Math.round(projected / 120);
+      const unlock = byPointsDesc.find((p) => p.points <= projected);
+      const unlockRow = unlock
+        ? '<div class="proj-tile__unlock"><i>' + svgIcon(CAT_META[unlock.cat].icon, 15) + "</i>" +
+          "<span>Enough for <b>" + unlock.name + "</b></span></div>"
+        : "";
+      return (
+        '<article class="card proj-tile" data-reveal style="--d:' + i + '">' +
+        '<span class="proj-tile__term"><i>' + t.m + "M</i>" + t.label + "</span>" +
+        '<div class="proj-tile__value tabular"><span data-countup="' + projected + '">0</span> <small>pts</small></div>' +
+        '<p class="proj-tile__equiv">≈ <b>' + D.fmtUsd.format(dollars).replace(".00", "") + "</b> in gift-card value</p>" +
+        unlockRow +
+        "</article>"
+      );
+    }).join("");
+
+    const chartHost = $("[data-proj-chart]");
+    if (chartHost) renderProjChart(chartHost, rate);
+  }
+
+  function renderProjChart(host, rate) {
+    const start = D.account.totalPoints;
+    const MONTHS = 12;
+    const W = 960, H = 260;
+    const pad = { t: 20, r: 20, b: 34, l: 56 };
+    const iw = W - pad.l - pad.r;
+    const ih = H - pad.t - pad.b;
+    const yMaxRaw = start + rate * MONTHS;
+    const yMax = Math.ceil(yMaxRaw / 50000) * 50000;
+    const x = (m) => pad.l + (m / MONTHS) * iw;
+    const y = (v) => pad.t + ih - (v / yMax) * ih;
+    const val = (m) => start + rate * m;
+
+    let svg = '<svg viewBox="0 0 ' + W + " " + H +
+      '" role="img" aria-label="Projected points balance from now to twelve months: ' +
+      D.fmt.format(start) + " today growing to about " + D.fmt.format(val(12)) + '">';
+
+    for (let v = 0; v <= yMax; v += yMax / 4) {
+      const yy = y(v).toFixed(1);
+      svg += '<line class="viz-grid-line" x1="' + pad.l + '" x2="' + (W - pad.r) + '" y1="' + yy + '" y2="' + yy + '"/>';
+      svg += '<text x="' + (pad.l - 9) + '" y="' + yy + '" text-anchor="end" dominant-baseline="middle">' +
+        (v >= 1000 ? Math.round(v / 1000) + "k" : v) + "</text>";
+    }
+    svg += '<line class="viz-axis-line" x1="' + pad.l + '" x2="' + (W - pad.r) + '" y1="' + (pad.t + ih) + '" y2="' + (pad.t + ih) + '"/>';
+    [[0, "Today"], [3, "3 mo"], [6, "6 mo"], [9, "9 mo"], [12, "12 mo"]].forEach(([m, label]) => {
+      svg += '<text x="' + x(m).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle">' + label + "</text>";
+    });
+
+    let dashed = "M" + x(0).toFixed(1) + " " + y(val(0)).toFixed(1);
+    for (let m = 1; m <= MONTHS; m++) dashed += " L" + x(m).toFixed(1) + " " + y(val(m)).toFixed(1);
+    svg += '<path class="viz-proj-line" d="' + dashed + '"/>';
+
+    svg += '<circle class="viz-proj-now" r="5" cx="' + x(0) + '" cy="' + y(val(0)) + '"/>';
+    [3, 6, 12].forEach((m) => {
+      svg += '<circle class="viz-proj-dot" r="5" cx="' + x(m) + '" cy="' + y(val(m)) + '"/>';
+      svg += '<text x="' + x(m) + '" y="' + (y(val(m)) - 13) + '" text-anchor="middle" style="font-weight:600;fill:var(--ink-2)">' +
+        D.fmt.format(val(m)) + "</text>";
+    });
+    svg += '<text x="' + (x(0) + 10) + '" y="' + (y(val(0)) - 13) + '" text-anchor="start" style="font-weight:600;fill:var(--ink-2)">' +
+      D.fmt.format(start) + " today</text>";
+    svg += "</svg>";
+    host.innerHTML = svg;
+  }
+
+  /* ------------------------------------------------------------------
      Page: Dashboard
      ------------------------------------------------------------------ */
   function pageDashboard() {
@@ -411,6 +502,7 @@
     if (donut) renderDonut(donut);
     const chart = $("[data-line-chart]");
     if (chart) renderLineChart(chart);
+    renderProjection();
 
     const rail = $("[data-featured]");
     if (rail) {
@@ -449,7 +541,6 @@
         '<div class="acc__panel" id="faq-panel-' + i + '" role="region" aria-labelledby="faq-btn-' + i + '"><div class="acc__inner"><p>' + f.a + "</p></div></div>" +
         "</div>"
       ).join("");
-      initAccordions();
     }
   }
 
@@ -697,8 +788,6 @@
   document.addEventListener("DOMContentLoaded", () => {
     initHeader();
     renderCartBadge(false);
-    initReveals();
-    initAccordions();
     initPageTransitions();
     bindAddButtons();
 
@@ -710,6 +799,9 @@
     if (page === "cart") pageCart();
     if (page === "profile") pageProfile();
 
+    // After page renderers, so dynamically inserted content is observed too.
+    initReveals();
+    initAccordions();
     initCountups();
   });
 })();
