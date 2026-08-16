@@ -1102,8 +1102,17 @@ body.menu-open { overflow: hidden; }
 .empty .btn { margin-top: 22px; }
 
 /* Carousel */
-.rail-ctrl { display: flex; align-items: center; gap: 8px; }
-.rail-ctrl .link { margin-right: 6px; }
+.rail-ctrl { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.rail-ctrl .link { margin-right: 6px; white-space: nowrap; }
+.section-title:has(.rail-ctrl) { align-items: center; flex-wrap: nowrap; }
+.section-title:has(.rail-ctrl) h2 { white-space: nowrap; }
+@media (max-width: 700px) {
+  .section-title:has(.rail-ctrl) { gap: 10px; }
+  .section-title:has(.rail-ctrl) h2 { font-size: 1.0625rem; }
+  .rail-ctrl { gap: 6px; }
+  .rail-ctrl .link { font-size: 0.875rem; margin-right: 2px; }
+  .rail-btn { width: 30px; height: 30px; }
+}
 .rail-btn {
   display: grid;
   place-items: center;
