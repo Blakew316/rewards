@@ -1007,7 +1007,16 @@ body.menu-open { overflow: hidden; }
 .product__art--photo { background: #fff; }
 .product__art--photo > svg { display: none; }
 .product__art--photo::after { display: none; }
-.product__art--photo::before { display: none; }
+/* Brand label stays readable above the photo */
+.product__art--photo::before {
+  z-index: 2;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  opacity: 1;
+  backdrop-filter: blur(4px);
+}
+.product__art-img { z-index: 1; }
 .product__art-img {
   position: absolute;
   inset: 0;

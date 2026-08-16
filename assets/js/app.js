@@ -257,28 +257,46 @@
   };
   window.WPI.CAT_META = CAT_META;
 
+  function photoTag(p) {
+    return (
+      '<img class="product__art-img" src="' + p.img + '"' +
+      (p.imgAlt ? ' data-alt="' + p.imgAlt + '"' : "") +
+      ' alt="" loading="lazy" referrerpolicy="no-referrer">'
+    );
+  }
+
   function productArt(p, iconSize) {
     const m = CAT_META[p.cat];
-    const photo = p.img
-      ? '<img class="product__art-img" src="' + p.img + '" alt="" loading="lazy" referrerpolicy="no-referrer"' +
-        ' onerror="var a=this.closest(&quot;.product__art&quot;);if(a)a.classList.remove(&quot;product__art--photo&quot;);this.remove();">'
-      : "";
     return (
       '<div class="product__art product__art--' + m.art + (p.img ? " product__art--photo" : "") +
       '" data-brand="' + p.brand + '">' +
-      photo + svgIcon(m.icon, iconSize || 52) +
+      (p.img ? photoTag(p) : "") + svgIcon(m.icon, iconSize || 52) +
       "</div>"
     );
   }
 
   function miniArt(p, iconSize) {
-    const m = CAT_META[p.cat];
-    const photo = p.img
-      ? '<img class="product__art-img" src="' + p.img + '" alt="" loading="lazy" referrerpolicy="no-referrer"' +
-        ' onerror="var a=this.closest(&quot;.cart-item__art&quot;);if(a)a.classList.remove(&quot;product__art--photo&quot;);this.remove();">'
-      : "";
-    return photo || svgIcon(m.icon, iconSize);
+    return p.img ? photoTag(p) : svgIcon(CAT_META[p.cat].icon, iconSize);
   }
+
+  /* Image fallback chain, captured globally (error events don't bubble):
+     primary URL fails → retry the data-alt URL once → drop to gradient art. */
+  document.addEventListener(
+    "error",
+    (e) => {
+      const img = e.target;
+      if (!(img instanceof HTMLImageElement) || !img.classList.contains("product__art-img")) return;
+      if (img.dataset.alt && !img.dataset.retried) {
+        img.dataset.retried = "1";
+        img.src = img.dataset.alt;
+        return;
+      }
+      const tile = img.closest(".product__art, .cart-item__art");
+      if (tile) tile.classList.remove("product__art--photo");
+      img.remove();
+    },
+    true
+  );
 
   function productCard(p, opts) {
     const afford = p.points <= D.account.availablePoints;
