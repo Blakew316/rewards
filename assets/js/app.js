@@ -162,9 +162,15 @@
           }
         });
       },
-      { threshold: 0.12, rootMargin: "0px 0px -4% 0px" }
+      { threshold: 0.12, rootMargin: "0px 0px -30px 0px" }
     );
     els.forEach((el) => io.observe(el));
+    // Failsafe: whatever the observer does or doesn't do (iOS Safari has
+    // known misfires on scroll), everything is visible within 1.5s.
+    setTimeout(() => {
+      els.forEach((el) => el.classList.add("is-in"));
+      io.disconnect();
+    }, 1500);
   }
 
   function initAccordions() {
@@ -1123,7 +1129,7 @@
     // iOS home-screen apps from freezing on a stale version.
     if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
       navigator.serviceWorker
-        .register("sw.js?v=24", { updateViaCache: "none" })
+        .register("sw.js?v=25", { updateViaCache: "none" })
         .then((reg) => {
           document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === "visible") reg.update().catch(() => {});
