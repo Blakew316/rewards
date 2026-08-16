@@ -199,7 +199,7 @@ h1, h2, h3, h4 {
   .span-2 { grid-column: span 1; }
 }
 @media (max-width: 640px) {
-  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: minmax(0, 1fr); }
 }
 
 .section-gap { margin-top: clamp(30px, 4.4vw, 52px); }
@@ -1139,6 +1139,7 @@ body.menu-open { overflow: hidden; }
   grid-auto-columns: clamp(230px, 24vw, 268px);
   gap: 16px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   scroll-snap-type: x mandatory;
   padding: 4px 4px 18px;
   margin: -4px -4px 0;
