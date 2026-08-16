@@ -349,10 +349,10 @@ h1, h2, h3, h4 {
 
 .brand { display: inline-flex; align-items: center; gap: 10px; margin-right: auto; transition: opacity var(--t-fast) var(--ease); }
 .brand:hover { opacity: 0.78; }
-.brand__logo { width: 26px; height: 26px; flex: none; }
-.brand__word { display: flex; flex-direction: column; line-height: 1.02; }
-.brand__word b { font-weight: 700; font-size: 1rem; letter-spacing: -0.03em; color: var(--navy-700); }
-.brand__word span { font-weight: 450; font-size: 0.72rem; letter-spacing: 0.01em; color: var(--ink-3); }
+.brand__logo { width: 29px; height: 29px; flex: none; }
+.brand__word { display: flex; flex-direction: column; align-items: flex-end; line-height: 0.98; gap: 1px; }
+.brand__word b { font-weight: 700; font-size: 1.125rem; letter-spacing: -0.028em; color: #1b2a6b; }
+.brand__word span { font-weight: 450; font-size: 0.8125rem; letter-spacing: 0.002em; color: #a3a7ae; }
 .brand__divider { width: 1px; height: 24px; background: var(--line); margin-inline: 4px 2px; flex: none; }
 .brand__product {
   font-size: 0.9375rem;

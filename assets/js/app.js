@@ -943,8 +943,7 @@
       if (vid) { try { vid.pause(); vid.currentTime = 0; } catch (e) { /* fine */ } }
       screen.textContent = "Ready";
       $("[data-demo-finish]").hidden = true;
-      $("[data-demo-copy3]").textContent =
-        "Your available points cover real rewards — gift cards, merchandise, even travel.";
+      $("[data-demo-copy3]").textContent = "";
       goStep(1);
       await sleep(1500);
 
