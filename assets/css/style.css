@@ -1007,6 +1007,7 @@ body.menu-open { overflow: hidden; }
 .product__art--photo { background: #fff; }
 .product__art--photo > svg { display: none; }
 .product__art--photo::after { display: none; }
+.product__art--photo::before { display: none; }
 .product__art-img {
   position: absolute;
   inset: 0;
