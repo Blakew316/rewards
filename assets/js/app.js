@@ -501,6 +501,13 @@
      Page: Dashboard
      ------------------------------------------------------------------ */
   function pageDashboard() {
+    const greeting = $("[data-greeting]");
+    if (greeting) {
+      const h = new Date().getHours();
+      const part = h < 12 ? "Good Morning" : h < 17 ? "Good Afternoon" : "Good Evening";
+      greeting.textContent = part + ", " + D.account.business;
+    }
+
     const donut = $("[data-donut]");
     if (donut) renderDonut(donut);
     const chart = $("[data-line-chart]");
