@@ -808,12 +808,21 @@
 
     const pendingEl = $("[data-demo-pending]");
     const availableEl = $("[data-demo-available]");
-    const sqt = $("[data-demo-sqt]");
-    const sqtCard = $(".sqt__card", sqt);
+    const vidWrap = $("[data-demo-sqt]");
+    const vid = $("[data-demo-vid]");
     const screen = $("[data-demo-screen]");
-    function setPose(name) {
-      sqtCard.style.transform = sqtCard.getAttribute("data-m-" + name);
-      sqt.classList.toggle("is-resting", name === "rest");
+    /* Play the machine animation once; resolve on ended, with a hard
+       fallback so the flow never stalls if playback is unavailable. */
+    function playMachine() {
+      if (!vid || reduce) return sleep(600);
+      return new Promise((resolve) => {
+        const dur = isFinite(vid.duration) && vid.duration > 0 ? vid.duration : 4.8;
+        const guard = setTimeout(resolve, dur * 1000 + 900);
+        vid.onended = () => { clearTimeout(guard); resolve(); };
+        try { vid.currentTime = 0; } catch (e) { /* not seekable yet */ }
+        const p = vid.play();
+        if (p && p.catch) p.catch(() => { clearTimeout(guard); setTimeout(resolve, 1200); });
+      });
     }
 
     const DEMO_REWARDS = [
@@ -849,30 +858,23 @@
       const amount = 320 + Math.round(Math.random() * 40) * 10;
       const pts = Math.round(amount * 0.2);
       screen.textContent = D.fmtUsd.format(amount).replace(".00", "");
-      await sleep(950);
-      setPose("align");
-      await sleep(1000);
-      setPose("in");
-      await sleep(1150);
+      await sleep(900);
+      await playMachine();
       screen.textContent = "Approved ✓";
-      sqt.classList.add("is-ok");
+      vidWrap.classList.add("is-ok");
       const chip = document.createElement("span");
       chip.className = "points-fly";
       chip.textContent = "+" + pts + " pts";
       chip.style.left = "50%";
-      chip.style.top = "16%";
+      chip.style.top = "12%";
       $(".demo-stage", $('[data-demo-step="1"]')).appendChild(chip);
       setTimeout(() => chip.remove(), 1250);
       state.pending += pts;
       syncBalances(true);
-      await sleep(1300);
-      setPose("align");
-      await sleep(800);
-      setPose("rest");
-      await sleep(950);
+      await sleep(1600);
       screen.textContent = "Ready";
-      sqt.classList.remove("is-ok");
-      await sleep(650);
+      vidWrap.classList.remove("is-ok");
+      await sleep(700);
     }
 
     function animateSettle() {
@@ -937,8 +939,8 @@
       state.pending = 0;
       state.available = 0;
       syncBalances(false);
-      sqt.classList.remove("is-ok");
-      setPose("rest");
+      vidWrap.classList.remove("is-ok");
+      if (vid) { try { vid.pause(); vid.currentTime = 0; } catch (e) { /* fine */ } }
       screen.textContent = "Ready";
       $("[data-demo-finish]").hidden = true;
       $("[data-demo-copy3]").textContent =

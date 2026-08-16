@@ -1,5 +1,5 @@
 /* WPI Rewards — service worker: precache the app shell, serve cache-first. */
-const VERSION = "wpi-rewards-v5";
+const VERSION = "wpi-rewards-v6";
 const ASSETS = [
   "./",
   "./index.html",
@@ -17,6 +17,8 @@ const ASSETS = [
   "./assets/img/icon-192.png",
   "./assets/img/icon-512.png",
   "./assets/img/apple-touch-icon.png",
+  "./assets/media/card-machine.mp4",
+  "./assets/media/card-machine.webm",
   "./manifest.webmanifest",
 ];
 
