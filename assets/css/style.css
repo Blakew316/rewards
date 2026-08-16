@@ -1659,6 +1659,134 @@ body.is-leaving { opacity: 0; transition: opacity 160ms var(--ease); }
 .countup { display: inline-block; }
 
 /* --------------------------------------------------------------------------
+   17b. Theme toggle & dark mode
+   -------------------------------------------------------------------------- */
+.theme-toggle { position: relative; }
+.theme-toggle svg {
+  position: absolute;
+  transition: opacity var(--t) var(--ease), transform var(--t-slow) var(--ease-out);
+}
+.theme-toggle .tt-sun { opacity: 0; transform: rotate(90deg) scale(0.6); }
+.theme-toggle .tt-moon { opacity: 1; transform: none; }
+html[data-theme="dark"] .theme-toggle .tt-sun { opacity: 1; transform: none; }
+html[data-theme="dark"] .theme-toggle .tt-moon { opacity: 0; transform: rotate(-90deg) scale(0.6); }
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+
+  --ink: #f5f5f7;
+  --ink-2: #b8b8bf;
+  --ink-3: #8f8f97;
+  --ink-4: #65656d;
+  --bg: #1c1c1f;
+  --bg-2: #101013;
+  --bg-3: #2b2b30;
+  --line: rgba(255, 255, 255, 0.15);
+  --line-2: rgba(255, 255, 255, 0.09);
+
+  --blue: #4da3ff;
+  --blue-600: #79b8ff;
+  --blue-050: rgba(30, 136, 247, 0.17);
+  --green-050: rgba(53, 208, 122, 0.15);
+  --mint: #45d68e;
+  --mint-050: rgba(53, 208, 122, 0.15);
+  --amber: #e5a34a;
+  --amber-050: rgba(229, 163, 74, 0.14);
+
+  --viz-grid: #2c2c31;
+  --viz-axis: #45454c;
+
+  --sh-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sh-md: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --sh-lg: 0 16px 44px rgba(0, 0, 0, 0.55);
+  --glow-brand:
+    -16px 22px 44px -22px rgba(30, 136, 247, 0.28),
+    16px 22px 44px -22px rgba(53, 208, 122, 0.26),
+    0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="dark"] .site-header { background: rgba(18, 18, 21, 0.72); }
+html[data-theme="dark"] .site-header.is-stuck { background: rgba(18, 18, 21, 0.88); border-bottom-color: var(--line-2); }
+html[data-theme="dark"] .account-menu { background: rgba(30, 30, 34, 0.94); }
+html[data-theme="dark"] .menu { background: rgba(14, 14, 17, 0.96); }
+html[data-theme="dark"] .toolbar { background: rgba(16, 16, 19, 0.86); border-bottom-color: var(--line-2); }
+
+html[data-theme="dark"] .brand__word b { color: #eef1f8; }
+html[data-theme="dark"] .nav__link:hover { background: rgba(255, 255, 255, 0.07); }
+html[data-theme="dark"] .icon-btn:hover,
+html[data-theme="dark"] .account-btn:hover,
+html[data-theme="dark"] .nav__toggle:hover,
+html[data-theme="dark"] .account-menu a:hover,
+html[data-theme="dark"] .account-menu button.account-menu__item:hover { background: rgba(255, 255, 255, 0.07); }
+html[data-theme="dark"] .cart-badge { border-color: #1c1c1f; }
+
+html[data-theme="dark"] .greeting {
+  background: linear-gradient(170deg, #151519 0%, #101013 100%);
+  border-bottom-color: var(--line-2);
+}
+html[data-theme="dark"] .greeting::before { opacity: 0.34; }
+html[data-theme="dark"] .greeting::after { opacity: 0.30; }
+
+html[data-theme="dark"] .seg { background: rgba(255, 255, 255, 0.08); }
+html[data-theme="dark"] .seg__btn[aria-pressed="true"] { background: #33333a; color: var(--ink); }
+html[data-theme="dark"] .switch i { background: rgba(255, 255, 255, 0.22); }
+html[data-theme="dark"] .search input,
+html[data-theme="dark"] .select-pill { background-color: var(--bg); }
+html[data-theme="dark"] .input:focus { background: #232329; }
+
+html[data-theme="dark"] .btn--ghost { background: rgba(255, 255, 255, 0.06); border-color: var(--line); }
+html[data-theme="dark"] .btn--ghost:hover { border-color: rgba(255, 255, 255, 0.3); }
+html[data-theme="dark"] .btn--dark { background: #f5f5f7; color: #101013; }
+html[data-theme="dark"] .btn--dark:hover { background: #ffffff; }
+html[data-theme="dark"] .btn--primary {
+  background: linear-gradient(180deg, #2c4292, #22347e);
+}
+html[data-theme="dark"] .btn--tint:hover { background: rgba(30, 136, 247, 0.26); }
+
+html[data-theme="dark"] .stat-card__value,
+html[data-theme="dark"] .proj-tile__value {
+  background: linear-gradient(120deg, #9db9ff 5%, var(--blue-bright) 55%, var(--green-bright) 110%);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+html[data-theme="dark"] .promo,
+html[data-theme="dark"] .proj-tile {
+  background:
+    radial-gradient(130% 120% at 8% 0%, rgba(30, 136, 247, 0.14), transparent 52%),
+    radial-gradient(130% 120% at 96% 100%, rgba(53, 208, 122, 0.13), transparent 52%),
+    #1c1c1f;
+}
+html[data-theme="dark"] .promo::after {
+  background: linear-gradient(115deg, transparent 34%, rgba(255, 255, 255, 0.08) 48%, transparent 62%);
+}
+
+html[data-theme="dark"] .product__art--gift { background: linear-gradient(150deg, rgba(30, 136, 247, 0.16), rgba(20, 22, 28, 0.4) 55%, rgba(53, 208, 122, 0.14)); color: var(--blue); }
+html[data-theme="dark"] .product__art--travel { background: linear-gradient(150deg, rgba(53, 208, 122, 0.16), rgba(20, 22, 28, 0.4) 55%, rgba(30, 136, 247, 0.14)); color: var(--green-bright); }
+html[data-theme="dark"] .product__art--luxury { background: linear-gradient(150deg, #2b2820 0%, #1f1e1a 55%, #20242e 100%); color: #d5b96a; }
+html[data-theme="dark"] .product__art--merch { background: linear-gradient(150deg, #232630 0%, #1d1f26 55%, #202a3a 100%); color: #a9c4ee; }
+html[data-theme="dark"] .product__art::before { color: var(--ink-2); }
+html[data-theme="dark"] .product__art::after { background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.06) 50%, transparent 62%); }
+html[data-theme="dark"] .product__art--photo { background: #ffffff; }
+html[data-theme="dark"] .product__art--photo::before { background: rgba(255, 255, 255, 0.88); color: var(--navy-700); }
+
+html[data-theme="dark"] .demo-vid { background: #ffffff; }
+html[data-theme="dark"] .demo-vidstatus { color: #cfe0ff; }
+html[data-theme="dark"] [data-demo-sqt].is-ok .demo-vidstatus { color: var(--mint); }
+html[data-theme="dark"] .demo-bucket { border-color: var(--line-2); }
+html[data-theme="dark"] .viz-tip { background: rgba(240, 240, 245, 0.96); color: #101013; }
+html[data-theme="dark"] .viz-tip span { color: rgba(16, 16, 19, 0.6); }
+html[data-theme="dark"] .toast { background: rgba(240, 240, 245, 0.96); color: #101013; }
+html[data-theme="dark"] .toast svg { color: #0d8a55; }
+html[data-theme="dark"] .empty__icon { color: var(--ink-3); }
+html[data-theme="dark"] .legal-note { color: #9cc4ff; }
+html[data-theme="dark"] .pill-status--ok { background: var(--green-050); }
+html[data-theme="dark"] .pill-status--pending { background: var(--amber-050); }
+html[data-theme="dark"] .summary-warn { background: var(--amber-050); }
+html[data-theme="dark"] .points-fly { background: rgba(53, 208, 122, 0.2); }
+html[data-theme="dark"] tbody tr:hover { background: rgba(77, 163, 255, 0.06); }
+html[data-theme="dark"] .site-footer { background: #0b0f22; }
+
+/* --------------------------------------------------------------------------
    18. Reduced motion & print
    -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {

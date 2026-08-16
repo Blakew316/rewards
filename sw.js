@@ -1,5 +1,8 @@
-/* WPI Rewards — service worker: precache the app shell, serve cache-first. */
-const VERSION = "wpi-rewards-v20";
+/* WPI Rewards — service worker.
+   Core assets (pages, styles, scripts) are network-first with cache
+   fallback, so installed PWAs always pick up new deploys when online.
+   Media and icons stay cache-first for speed. */
+const VERSION = "wpi-rewards-v21";
 const ASSETS = [
   "./",
   "./index.html",
@@ -22,6 +25,8 @@ const ASSETS = [
   "./manifest.webmanifest",
 ];
 
+const CORE = /\.(?:html|css|js|webmanifest)$|\/$/;
+
 self.addEventListener("install", (e) => {
   e.waitUntil(
     caches.open(VERSION).then((c) => c.addAll(ASSETS)).then(() => self.skipWaiting())
@@ -37,18 +42,28 @@ self.addEventListener("activate", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
-  if (e.request.method !== "GET") return;
+  const req = e.request;
+  if (req.method !== "GET") return;
+  const url = new URL(req.url);
+  const sameOrigin = url.origin === location.origin;
+
+  const cachePut = (res) => {
+    if (res && res.ok && sameOrigin) {
+      const copy = res.clone();
+      caches.open(VERSION).then((c) => c.put(req, copy));
+    }
+    return res;
+  };
+
+  if (req.mode === "navigate" || (sameOrigin && CORE.test(url.pathname))) {
+    // Network-first: fresh code wins whenever the device is online.
+    e.respondWith(
+      fetch(req).then(cachePut).catch(() => caches.match(req, { ignoreSearch: true }))
+    );
+    return;
+  }
+
   e.respondWith(
-    caches.match(e.request, { ignoreSearch: true }).then(
-      (hit) =>
-        hit ||
-        fetch(e.request).then((res) => {
-          if (res.ok && new URL(e.request.url).origin === location.origin) {
-            const copy = res.clone();
-            caches.open(VERSION).then((c) => c.put(e.request, copy));
-          }
-          return res;
-        })
-    )
+    caches.match(req, { ignoreSearch: true }).then((hit) => hit || fetch(req).then(cachePut))
   );
 });

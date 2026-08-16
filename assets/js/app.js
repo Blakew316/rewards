@@ -529,23 +529,35 @@
     host.innerHTML = svg;
   }
 
+  /* Run a render step in isolation so one failure can't blank the rest. */
+  function safe(fn) {
+    try { fn(); } catch (e) { /* section renders fall back to static markup */ }
+  }
+
   /* ------------------------------------------------------------------
      Page: Dashboard
      ------------------------------------------------------------------ */
   function pageDashboard() {
-    const greeting = $("[data-greeting]");
-    if (greeting) {
-      const h = new Date().getHours();
-      const part = h < 12 ? "Good Morning" : h < 17 ? "Good Afternoon" : "Good Evening";
-      greeting.textContent = part + ", " + D.account.business;
-    }
+    safe(() => {
+      const greeting = $("[data-greeting]");
+      if (greeting) {
+        const h = new Date().getHours();
+        const part = h < 12 ? "Good Morning" : h < 17 ? "Good Afternoon" : "Good Evening";
+        greeting.textContent = part + ", " + D.account.business;
+      }
+    });
 
-    const donut = $("[data-donut]");
-    if (donut) renderDonut(donut);
-    const chart = $("[data-line-chart]");
-    if (chart) renderLineChart(chart);
-    renderProjection();
+    safe(() => {
+      const donut = $("[data-donut]");
+      if (donut) renderDonut(donut);
+    });
+    safe(() => {
+      const chart = $("[data-line-chart]");
+      if (chart) renderLineChart(chart);
+    });
+    safe(renderProjection);
 
+    safe(() => {
     const rail = $("[data-featured]");
     if (rail) {
       const avail = D.account.availablePoints;
@@ -575,7 +587,9 @@
         sync();
       }
     }
+    });
 
+    safe(() => {
     const act = $("[data-activity]");
     if (act) {
       const rows = allOrders().slice(0, 6).map((o) =>
@@ -594,7 +608,9 @@
       );
       act.innerHTML = recent.concat(rows).join("");
     }
+    });
 
+    safe(() => {
     const faqHost = $("[data-faq]");
     if (faqHost) {
       faqHost.innerHTML = D.faq.map((f, i) =>
@@ -605,6 +621,7 @@
         "</div>"
       ).join("");
     }
+    });
   }
 
   /* ------------------------------------------------------------------
@@ -1047,8 +1064,30 @@
   /* ------------------------------------------------------------------
      Boot
      ------------------------------------------------------------------ */
+  function initThemeToggle() {
+    const meta = $('meta[name="theme-color"]');
+    const syncMeta = () => {
+      if (meta) {
+        meta.setAttribute(
+          "content",
+          document.documentElement.getAttribute("data-theme") === "dark" ? "#101013" : "#ffffff"
+        );
+      }
+    };
+    syncMeta();
+    $$("[data-theme-toggle]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        try { localStorage.setItem("wpi-theme", next); } catch (e) { /* private mode */ }
+        syncMeta();
+      });
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     initHeader();
+    initThemeToggle();
     renderCartBadge(false);
     initPageTransitions();
     bindAddButtons();
@@ -1067,9 +1106,18 @@
     initAccordions();
     initCountups();
 
-    // PWA: offline shell + installability (service workers need http/https)
+    // PWA: offline shell + installability (service workers need http/https).
+    // updateViaCache "none" + explicit update() on resume keep installed
+    // iOS home-screen apps from freezing on a stale version.
     if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
-      navigator.serviceWorker.register("sw.js").catch(() => {});
+      navigator.serviceWorker
+        .register("sw.js", { updateViaCache: "none" })
+        .then((reg) => {
+          document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") reg.update().catch(() => {});
+          });
+        })
+        .catch(() => {});
     }
   });
 })();
