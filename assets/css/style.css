@@ -1647,7 +1647,7 @@ select.input {
   font-size: 0.8125rem;
   color: var(--d-fg-3);
 }
-.footer__social { display: flex; gap: 6px; }
+.footer__social { display: flex; gap: 10px; justify-content: center; }
 .footer__social a {
   display: grid;
   place-items: center;
@@ -1658,7 +1658,11 @@ select.input {
 }
 .footer__social a:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
 @media (max-width: 860px) { .footer__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-@media (max-width: 520px) { .footer__grid { grid-template-columns: 1fr; } }
+@media (max-width: 520px) {
+  .footer__grid { grid-template-columns: 1fr; }
+  .footer__bottom { flex-direction: column; justify-content: center; text-align: center; }
+  .footer__social { width: 100%; }
+}
 
 /* --------------------------------------------------------------------------
    16. Legal pages
