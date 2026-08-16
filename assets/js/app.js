@@ -572,6 +572,14 @@
         now.map((p) => productCard(p, { badge: { kind: "now", text: "Redeem now" } })).join("") +
         soon.map((p) => productCard(p, { badge: { kind: "soon", text: "As pending settles" } })).join("");
 
+      // Front of the rail is what greets the user — fetch those images now.
+      $$(".product__art-img", rail).forEach((img, i) => {
+        if (i < 4) {
+          img.loading = "eager";
+          img.setAttribute("fetchpriority", "high");
+        }
+      });
+
       const prev = $("[data-rail-prev]");
       const next = $("[data-rail-next]");
       if (prev && next) {

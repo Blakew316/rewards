@@ -2,7 +2,7 @@
    Core assets (pages, styles, scripts) are network-first with cache
    fallback, so installed PWAs always pick up new deploys when online.
    Media and icons stay cache-first for speed. */
-const VERSION = "wpi-rewards-v21";
+const VERSION = "wpi-rewards-v22";
 const ASSETS = [
   "./",
   "./index.html",
