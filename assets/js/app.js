@@ -1098,32 +1098,32 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    initHeader();
-    initThemeToggle();
-    renderCartBadge(false);
-    initPageTransitions();
-    bindAddButtons();
+    safe(initHeader);
+    safe(initThemeToggle);
+    safe(() => renderCartBadge(false));
+    safe(initPageTransitions);
+    safe(bindAddButtons);
 
     const page = document.body.getAttribute("data-page");
-    if (page === "dashboard") pageDashboard();
-    if (page === "catalog") pageCatalog();
-    if (page === "earnings") pageEarnings();
-    if (page === "orders") pageOrders();
-    if (page === "cart") pageCart();
-    if (page === "profile") pageProfile();
-    if (page === "demo") pageDemo();
+    if (page === "dashboard") safe(pageDashboard);
+    if (page === "catalog") safe(pageCatalog);
+    if (page === "earnings") safe(pageEarnings);
+    if (page === "orders") safe(pageOrders);
+    if (page === "cart") safe(pageCart);
+    if (page === "profile") safe(pageProfile);
+    if (page === "demo") safe(pageDemo);
 
     // After page renderers, so dynamically inserted content is observed too.
-    initReveals();
-    initAccordions();
-    initCountups();
+    safe(initReveals);
+    safe(initAccordions);
+    safe(initCountups);
 
     // PWA: offline shell + installability (service workers need http/https).
     // updateViaCache "none" + explicit update() on resume keep installed
     // iOS home-screen apps from freezing on a stale version.
     if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
       navigator.serviceWorker
-        .register("sw.js", { updateViaCache: "none" })
+        .register("sw.js?v=24", { updateViaCache: "none" })
         .then((reg) => {
           document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === "visible") reg.update().catch(() => {});
