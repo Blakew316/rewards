@@ -967,11 +967,11 @@
       });
     }
 
-    const DEMO_REWARDS = [
-      { id: "coffee", name: "Coffee for the Team", pts: 60, icon: "gift" },
-      { id: "gc", name: "$25 Gift Card", pts: 120, icon: "gift" },
-      { id: "lunch", name: "Team Lunch Out", pts: 200, icon: "star" },
-    ];
+    /* Real catalog items a merchant can afford with the demo's 10,000+ pts */
+    const DEMO_REWARDS = ["gc-starbucks", "gc-amazon-50", "gc-doordash"]
+      .map((id) => D.catalog.find((c) => c.id === id))
+      .filter(Boolean)
+      .map((p) => ({ id: p.id, name: p.name, pts: p.points, img: p.img, alt: p.imgAlt }));
 
     function syncBalances(bump) {
       pendingEl.textContent = D.fmt.format(state.pending);
@@ -999,8 +999,7 @@
     async function runSale() {
       const amount = 320 + Math.round(Math.random() * 40) * 10;
       const pts = Math.round(amount * 0.2);
-      screen.textContent = D.fmtUsd.format(amount).replace(".00", "");
-      await sleep(900);
+      await sleep(700);
       await playMachine();
       screen.textContent = "Approved ✓";
       vidWrap.classList.add("is-ok");
@@ -1017,6 +1016,28 @@
       screen.textContent = "Ready";
       vidWrap.classList.remove("is-ok");
       await sleep(700);
+    }
+
+    /* A month of batches lands in Pending until the balance clears 10,000 pts */
+    async function accumulateBatches() {
+      const target = 10000 + Math.round(Math.random() * 8) * 100;
+      const bucket = $("[data-bucket-pending-n]");
+      const stage = $(".demo-stage", $('[data-demo-step="2"]'));
+      while (state.pending < target) {
+        const left = target - state.pending;
+        const add = left <= 3200 ? left : Math.min(left, 1600 + Math.round(Math.random() * 1400));
+        state.pending += add;
+        bucket.textContent = D.fmt.format(state.pending);
+        const chip = document.createElement("span");
+        chip.className = "points-fly";
+        chip.textContent = "+" + D.fmt.format(add) + " pts";
+        chip.style.left = "25%";
+        chip.style.top = "8%";
+        stage.appendChild(chip);
+        setTimeout(() => chip.remove(), 1250);
+        syncBalances(false);
+        await sleep(reduce ? 60 : 850);
+      }
     }
 
     function animateSettle() {
@@ -1053,9 +1074,21 @@
     function renderDemoRewards() {
       $("[data-demo-rewards]").innerHTML = DEMO_REWARDS.map((r) =>
         '<div class="demo-reward' + (r.pts > state.available ? " is-dim" : "") + '" data-reward="' + r.id + '">' +
-        '<span class="demo-reward__icon">' + svgIcon(r.icon, 22) + "</span>" +
-        "<b>" + r.name + "</b><span>" + r.pts + " pts</span></div>"
+        (r.img
+          ? '<img class="demo-reward__img" src="' + r.img + '"' + (r.alt ? ' data-alt="' + r.alt + '"' : "") + ' alt="" loading="lazy" referrerpolicy="no-referrer">'
+          : '<span class="demo-reward__icon">' + svgIcon("gift", 22) + "</span>") +
+        "<b>" + r.name + "</b><span>" + D.fmt.format(r.pts) + " pts</span></div>"
       ).join("");
+      $$(".demo-reward__img").forEach((img) => {
+        img.addEventListener("error", () => {
+          const alt = img.getAttribute("data-alt");
+          if (alt && img.src !== alt) { img.src = alt; return; }
+          const span = document.createElement("span");
+          span.className = "demo-reward__icon";
+          span.innerHTML = svgIcon("gift", 22);
+          img.replaceWith(span);
+        });
+      });
     }
 
     function confettiBurst() {
@@ -1095,7 +1128,9 @@
       goStep(2);
       $("[data-bucket-pending-n]").textContent = D.fmt.format(state.pending);
       $("[data-bucket-avail-n]").textContent = D.fmt.format(state.available);
-      await sleep(1400);
+      await sleep(1200);
+      await accumulateBatches();
+      await sleep(900);
       await animateSettle();
       await sleep(1200);
 
@@ -1196,7 +1231,7 @@
     // iOS home-screen apps from freezing on a stale version.
     if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
       navigator.serviceWorker
-        .register("sw.js?v=36", { updateViaCache: "none" })
+        .register("sw.js?v=37", { updateViaCache: "none" })
         .then((reg) => {
           document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === "visible") reg.update().catch(() => {});

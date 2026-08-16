@@ -1605,6 +1605,14 @@ select.input {
   transition: transform var(--t) var(--ease-out), box-shadow var(--t) var(--ease), opacity var(--t) var(--ease), border-color var(--t) var(--ease);
 }
 .demo-reward.is-dim { opacity: 0.42; }
+.demo-reward__img {
+  width: 54px; height: 54px;
+  border-radius: 14px;
+  object-fit: contain;
+  background: #fff;
+  padding: 5px;
+  border: 1px solid var(--line-2);
+}
 .demo-reward__icon {
   width: 46px; height: 46px;
   border-radius: 14px;
