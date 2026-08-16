@@ -317,6 +317,15 @@ h1, h2, h3, h4 {
 .btn-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 .hero-tabs { gap: clamp(16px, 2.6vw, 30px); }
 .hero-tabs .btn { min-width: 118px; }
+@media (max-width: 620px) {
+  .hero-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 100%;
+  }
+  .hero-tabs .btn { min-width: 0; padding: 11px 6px; font-size: 0.9rem; }
+}
 
 /* --------------------------------------------------------------------------
    6. Header
