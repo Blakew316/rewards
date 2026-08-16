@@ -578,9 +578,7 @@
       const soon = D.catalog
         .filter((p) => p.points > avail && p.points <= total)
         .sort((a, b) => a.points - b.points);
-      rail.innerHTML =
-        now.map((p) => productCard(p, { badge: { kind: "now", text: "Redeem now" } })).join("") +
-        soon.map((p) => productCard(p, { badge: { kind: "soon", text: "As pending settles" } })).join("");
+      rail.innerHTML = now.concat(soon).map((p) => productCard(p)).join("");
 
       // Front of the rail is what greets the user — fetch those images now.
       $$(".product__art-img", rail).forEach((img, i) => {
@@ -1129,7 +1127,7 @@
     // iOS home-screen apps from freezing on a stale version.
     if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
       navigator.serviceWorker
-        .register("sw.js?v=25", { updateViaCache: "none" })
+        .register("sw.js?v=26", { updateViaCache: "none" })
         .then((reg) => {
           document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === "visible") reg.update().catch(() => {});
