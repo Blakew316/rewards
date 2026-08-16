@@ -718,11 +718,26 @@
     if (!host) return;
     const searchEl = $("[data-tx-search]");
 
+    /* Month filter state: default to the current month, falling back to
+       the most recent month that actually has transactions. */
+    const mKey = (y, m) => y + "-" + String(m).padStart(2, "0");
+    const mName = (m, style) => new Date(2000, m - 1, 1).toLocaleDateString("en-US", { month: style });
+    const txMonths = new Set(D.transactions.map((t) => t.date.slice(0, 7)));
+    const monthKeys = Array.from(txMonths).sort();
+    const minYear = +monthKeys[0].slice(0, 4);
+    const maxYear = +monthKeys[monthKeys.length - 1].slice(0, 4);
+    const today = new Date();
+    let selKey = mKey(today.getFullYear(), today.getMonth() + 1);
+    if (!txMonths.has(selKey)) selKey = monthKeys[monthKeys.length - 1];
+    let selYear = +selKey.slice(0, 4);
+    let selMonth = +selKey.slice(5, 7);
+
     function render(q) {
-      let rows = D.transactions;
+      let rows = D.transactions.filter((t) => t.date.slice(0, 7) === mKey(selYear, selMonth));
       if (q) rows = rows.filter((t) => (D.fmtDateLong(t.date) + t.amount + t.points).toLowerCase().includes(q.toLowerCase()));
       if (!rows.length) {
-        host.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--ink-3);padding:34px">No transactions match.</td></tr>';
+        host.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--ink-3);padding:34px">No transactions in ' +
+          mName(selMonth, "long") + " " + selYear + (q ? " match." : ".") + "</td></tr>";
         return;
       }
       let lastMonth = "";
@@ -738,6 +753,60 @@
       }).join("");
     }
     if (searchEl) searchEl.addEventListener("input", () => render(searchEl.value.trim()));
+
+    /* Apple-style month & year picker */
+    const picker = $("[data-month-picker]");
+    if (picker) {
+      const btn = $("[data-month-btn]", picker);
+      const pop = $("[data-month-pop]", picker);
+      const grid = $("[data-month-grid]", picker);
+      const yearLabel = $("[data-year-label]", picker);
+      const yearPrev = $("[data-year-prev]", picker);
+      const yearNext = $("[data-year-next]", picker);
+      let viewYear = selYear;
+
+      const syncLabel = () => { $("[data-month-label]", picker).textContent = mName(selMonth, "long") + " " + selYear; };
+      function drawGrid() {
+        yearLabel.textContent = String(viewYear);
+        yearPrev.disabled = viewYear <= minYear;
+        yearNext.disabled = viewYear >= maxYear;
+        grid.innerHTML = "";
+        for (let m = 1; m <= 12; m++) {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.textContent = mName(m, "short");
+          b.disabled = !txMonths.has(mKey(viewYear, m));
+          if (viewYear === selYear && m === selMonth) b.classList.add("is-on");
+          b.addEventListener("click", () => {
+            selYear = viewYear;
+            selMonth = m;
+            syncLabel();
+            closePop();
+            render(searchEl ? searchEl.value.trim() : "");
+          });
+          grid.appendChild(b);
+        }
+      }
+      function openPop() {
+        viewYear = selYear;
+        drawGrid();
+        pop.classList.add("is-open");
+        btn.setAttribute("aria-expanded", "true");
+      }
+      function closePop() {
+        pop.classList.remove("is-open");
+        btn.setAttribute("aria-expanded", "false");
+      }
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        pop.classList.contains("is-open") ? closePop() : openPop();
+      });
+      yearPrev.addEventListener("click", () => { viewYear--; drawGrid(); });
+      yearNext.addEventListener("click", () => { viewYear++; drawGrid(); });
+      document.addEventListener("click", (e) => { if (!picker.contains(e.target)) closePop(); });
+      document.addEventListener("keydown", (e) => { if (e.key === "Escape") closePop(); });
+      syncLabel();
+    }
     render("");
 
     const act = $("[data-redemptions]");
@@ -1127,7 +1196,7 @@
     // iOS home-screen apps from freezing on a stale version.
     if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
       navigator.serviceWorker
-        .register("sw.js?v=35", { updateViaCache: "none" })
+        .register("sw.js?v=36", { updateViaCache: "none" })
         .then((reg) => {
           document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === "visible") reg.update().catch(() => {});

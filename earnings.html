@@ -113,12 +113,28 @@
         <section class="card table-card span-2" data-reveal aria-labelledby="tx-title">
           <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;padding:20px 18px 14px;flex-wrap:wrap">
             <h2 class="h3" id="tx-title">Transactions</h2>
-            <div class="search">
-              <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="m15.6 15.6 4.6 4.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
-              <input type="search" placeholder="Filter transactions" aria-label="Filter transactions" data-tx-search>
+            <div class="tx-tools">
+              <div class="month-picker" data-month-picker>
+                <button type="button" class="month-btn" data-month-btn aria-haspopup="true" aria-expanded="false">
+                  <span data-month-label>Month</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9.5 12 15.5 18 9.5"/></svg>
+                </button>
+                <div class="month-pop" data-month-pop role="dialog" aria-label="Choose month">
+                  <div class="month-pop__year">
+                    <button type="button" data-year-prev aria-label="Previous year"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="14.5 5.5 8 12 14.5 18.5"/></svg></button>
+                    <b class="tabular" data-year-label></b>
+                    <button type="button" data-year-next aria-label="Next year"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9.5 5.5 16 12 9.5 18.5"/></svg></button>
+                  </div>
+                  <div class="month-pop__grid" data-month-grid></div>
+                </div>
+              </div>
+              <div class="search">
+                <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="m15.6 15.6 4.6 4.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+                <input type="search" placeholder="Filter transactions" aria-label="Filter transactions" data-tx-search>
+              </div>
             </div>
           </div>
-          <div class="table-wrap">
+          <div class="table-wrap table-wrap--scroll">
             <table>
               <thead>
                 <tr><th>Settlement date</th><th class="num">Volume processed</th><th class="num">Points earned</th></tr>
