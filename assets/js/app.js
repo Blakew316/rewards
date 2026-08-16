@@ -860,6 +860,9 @@
   function pageCart() {
     const listHost = $("[data-cart-list]");
     if (!listHost) return;
+    // Drop cart rows for products no longer in the catalog.
+    const valid = Cart.read().filter((i) => D.catalog.some((c) => c.id === i.id));
+    if (valid.length !== Cart.read().length) Cart.write(valid);
     const layout = $("[data-cart-layout]");
     const emptyHost = $("[data-cart-empty]");
     const totalEl = $("[data-cart-total]");
@@ -1231,7 +1234,7 @@
     // iOS home-screen apps from freezing on a stale version.
     if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
       navigator.serviceWorker
-        .register("sw.js?v=38", { updateViaCache: "none" })
+        .register("sw.js?v=39", { updateViaCache: "none" })
         .then((reg) => {
           document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === "visible") reg.update().catch(() => {});

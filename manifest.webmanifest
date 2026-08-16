@@ -1,7 +1,7 @@
 {
   "name": "WPI Rewards",
   "short_name": "WPI Rewards",
-  "description": "Merchant rewards portal \u2014 earn points on every transaction and redeem for gift cards, travel and more.",
+  "description": "Merchant rewards portal \u2014 earn points on every transaction and redeem for gift cards, electronics and luxury goods.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
