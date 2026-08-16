@@ -465,7 +465,7 @@
     if (!host) return;
     const rate = monthlyRate();
     const note = $("[data-proj-note]");
-    if (note) note.textContent = "Based on your current pace of ~" + D.fmt.format(rate) + " pts/month";
+    if (note) note.innerHTML = '<span data-note-long>Based on your current pace of </span>~' + D.fmt.format(rate) + " pts/month";
 
     const byPointsDesc = D.catalog.slice().sort((a, b) => b.points - a.points);
     const TERMS = [
@@ -1127,7 +1127,7 @@
     // iOS home-screen apps from freezing on a stale version.
     if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
       navigator.serviceWorker
-        .register("sw.js?v=31", { updateViaCache: "none" })
+        .register("sw.js?v=32", { updateViaCache: "none" })
         .then((reg) => {
           document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === "visible") reg.update().catch(() => {});

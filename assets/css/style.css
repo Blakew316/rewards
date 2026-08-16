@@ -1112,6 +1112,14 @@ body.menu-open { overflow: hidden; }
   .rail-ctrl { gap: 6px; }
   .rail-ctrl .link { font-size: 0.875rem; margin-right: 2px; }
   .rail-btn { width: 30px; height: 30px; }
+
+  /* Earnings outlook header: single row on phones */
+  .section-title:has([data-proj-note]) { align-items: center; gap: 10px; }
+  #proj-title { font-size: 1.0625rem; white-space: nowrap; }
+  [data-proj-note] { white-space: nowrap; text-align: right; }
+  [data-note-long] { display: none; }
+  #proj-chart-title { white-space: nowrap; }
+  #proj-chart-title + .fine { display: none; }
 }
 .rail-btn {
   display: grid;
