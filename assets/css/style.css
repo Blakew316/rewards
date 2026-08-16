@@ -314,6 +314,8 @@ h1, h2, h3, h4 {
 .pill-status--pending { background: var(--amber-050); color: var(--amber); }
 
 .btn-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.hero-tabs { gap: clamp(16px, 2.6vw, 30px); }
+.hero-tabs .btn { min-width: 118px; }
 
 /* --------------------------------------------------------------------------
    6. Header
