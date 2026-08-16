@@ -1002,6 +1002,22 @@ body.menu-open { overflow: hidden; }
   color: var(--navy-700);
 }
 
+/* Real product photos: white tile, image fills, icon hidden; if the image
+   fails to load the --photo class is dropped and the tile falls back. */
+.product__art--photo { background: #fff; }
+.product__art--photo > svg { display: none; }
+.product__art--photo::after { display: none; }
+.product__art-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 14px;
+}
+.cart-item__art { position: relative; overflow: hidden; }
+.cart-item__art .product__art-img { padding: 4px; }
+
 .product__body { display: flex; flex-direction: column; gap: 8px; padding: 18px; flex: 1; }
 .product__cat { font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3); }
 .product__name {

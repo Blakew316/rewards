@@ -259,11 +259,25 @@
 
   function productArt(p, iconSize) {
     const m = CAT_META[p.cat];
+    const photo = p.img
+      ? '<img class="product__art-img" src="' + p.img + '" alt="" loading="lazy" referrerpolicy="no-referrer"' +
+        ' onerror="var a=this.closest(&quot;.product__art&quot;);if(a)a.classList.remove(&quot;product__art--photo&quot;);this.remove();">'
+      : "";
     return (
-      '<div class="product__art product__art--' + m.art + '" data-brand="' + p.brand + '">' +
-      svgIcon(m.icon, iconSize || 52) +
+      '<div class="product__art product__art--' + m.art + (p.img ? " product__art--photo" : "") +
+      '" data-brand="' + p.brand + '">' +
+      photo + svgIcon(m.icon, iconSize || 52) +
       "</div>"
     );
+  }
+
+  function miniArt(p, iconSize) {
+    const m = CAT_META[p.cat];
+    const photo = p.img
+      ? '<img class="product__art-img" src="' + p.img + '" alt="" loading="lazy" referrerpolicy="no-referrer"' +
+        ' onerror="var a=this.closest(&quot;.cart-item__art&quot;);if(a)a.classList.remove(&quot;product__art--photo&quot;);this.remove();">'
+      : "";
+    return photo || svgIcon(m.icon, iconSize);
   }
 
   function productCard(p, opts) {
@@ -705,7 +719,8 @@
       host.innerHTML = rows.map((o) => {
         const p = D.catalog.find((c) => c.id === o.productId);
         const art = p
-          ? '<div class="cart-item__art product__art--' + CAT_META[p.cat].art + '" style="width:56px;height:42px;border-radius:10px">' + svgIcon(CAT_META[p.cat].icon, 22) + "</div>"
+          ? '<div class="cart-item__art product__art--' + CAT_META[p.cat].art + (p.img ? " product__art--photo" : "") +
+            '" style="width:56px;height:42px;border-radius:10px">' + miniArt(p, 22) + "</div>"
           : "";
         const pill = o.status === "Confirmed"
           ? '<span class="pill-status pill-status--ok">Confirmed</span>'
@@ -745,7 +760,7 @@
         if (!p) return "";
         return (
           '<div class="cart-item" data-row="' + p.id + '">' +
-          '<div class="cart-item__art product__art--' + CAT_META[p.cat].art + '">' + svgIcon(CAT_META[p.cat].icon, 30) + "</div>" +
+          '<div class="cart-item__art product__art--' + CAT_META[p.cat].art + (p.img ? " product__art--photo" : "") + '">' + miniArt(p, 30) + "</div>" +
           "<div><div class='cart-item__name'>" + p.name + "</div>" +
           '<div class="cart-item__meta">' + CAT_META[p.cat].label + " · " + D.fmt.format(p.points) + " pts each</div>" +
           '<div style="margin-top:10px;display:flex;align-items:center;gap:14px">' +
