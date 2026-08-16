@@ -948,7 +948,7 @@
       goStep(1);
       await sleep(1500);
 
-      for (let i = 0; i < 2; i++) await runSale();
+      await runSale();
       await sleep(900);
 
       goStep(2);
