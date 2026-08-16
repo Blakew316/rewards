@@ -1651,13 +1651,13 @@ select.input {
 /* --------------------------------------------------------------------------
    17. Motion — reveal & page transitions
    -------------------------------------------------------------------------- */
-[data-reveal] {
+html.js-reveal [data-reveal] {
   opacity: 0;
   transform: translateY(16px);
   transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out);
   transition-delay: calc(var(--d, 0) * 70ms);
 }
-[data-reveal].is-in { opacity: 1; transform: none; }
+html.js-reveal [data-reveal].is-in { opacity: 1; transform: none; }
 
 @view-transition { navigation: auto; }
 ::view-transition-old(root) { animation: vt-out 180ms var(--ease) both; }

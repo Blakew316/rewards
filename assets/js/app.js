@@ -149,6 +149,10 @@
       els.forEach((el) => el.classList.add("is-in"));
       return;
     }
+    // Only hide-and-reveal once JS is definitely running; without this
+    // class the CSS leaves everything visible, so slow or failed script
+    // loads can never blank the page.
+    document.documentElement.classList.add("js-reveal");
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((en) => {

@@ -1,8 +1,9 @@
 /* WPI Rewards — service worker.
-   Core assets (pages, styles, scripts) are network-first with cache
-   fallback, so installed PWAs always pick up new deploys when online.
-   Media and icons stay cache-first for speed. */
-const VERSION = "wpi-rewards-v22";
+   Pages: network-first with a short timeout, so slow connections fall
+   back to cache instead of hanging. Styles/scripts: served instantly
+   from cache while a background fetch refreshes them for the next
+   launch. Media and images: cache-first. */
+const VERSION = "wpi-rewards-v23";
 const ASSETS = [
   "./",
   "./index.html",
@@ -25,7 +26,8 @@ const ASSETS = [
   "./manifest.webmanifest",
 ];
 
-const CORE = /\.(?:html|css|js|webmanifest)$|\/$/;
+const CORE = /\.(?:css|js|webmanifest)$/;
+const NAV_TIMEOUT_MS = 2500;
 
 self.addEventListener("install", (e) => {
   e.waitUntil(
@@ -55,10 +57,30 @@ self.addEventListener("fetch", (e) => {
     return res;
   };
 
-  if (req.mode === "navigate" || (sameOrigin && CORE.test(url.pathname))) {
-    // Network-first: fresh code wins whenever the device is online.
+  if (req.mode === "navigate" || (sameOrigin && /\.html$/.test(url.pathname))) {
+    // Fresh page when the network answers quickly; cached page otherwise.
     e.respondWith(
-      fetch(req).then(cachePut).catch(() => caches.match(req, { ignoreSearch: true }))
+      Promise.race([
+        fetch(req).then(cachePut),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), NAV_TIMEOUT_MS)),
+      ]).catch(() =>
+        caches.match(req, { ignoreSearch: true }).then((hit) => hit || fetch(req))
+      )
+    );
+    return;
+  }
+
+  if (sameOrigin && CORE.test(url.pathname)) {
+    // Stale-while-revalidate: instant response, refreshed in background.
+    e.respondWith(
+      caches.match(req, { ignoreSearch: true }).then((hit) => {
+        const refresh = fetch(req).then(cachePut).catch(() => hit);
+        if (hit) {
+          e.waitUntil(refresh.catch(() => {}));
+          return hit;
+        }
+        return refresh;
+      })
     );
     return;
   }
