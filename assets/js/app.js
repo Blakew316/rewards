@@ -967,8 +967,8 @@
       });
     }
 
-    /* Real catalog items a merchant can afford with the demo's 10,000+ pts */
-    const DEMO_REWARDS = ["gc-starbucks", "gc-amazon-50", "gc-doordash"]
+    /* Real 12,000-pt catalog items the demo's 12,300+ pts can redeem */
+    const DEMO_REWARDS = ["gc-amazon-100", "gc-apple", "gc-ubereats"]
       .map((id) => D.catalog.find((c) => c.id === id))
       .filter(Boolean)
       .map((p) => ({ id: p.id, name: p.name, pts: p.points, img: p.img, alt: p.imgAlt }));
@@ -1020,7 +1020,7 @@
 
     /* A month of batches lands in Pending until the balance clears 10,000 pts */
     async function accumulateBatches() {
-      const target = 10000 + Math.round(Math.random() * 8) * 100;
+      const target = 12300 + Math.round(Math.random() * 8) * 100;
       const bucket = $("[data-bucket-pending-n]");
       const stage = $(".demo-stage", $('[data-demo-step="2"]'));
       while (state.pending < target) {
@@ -1231,7 +1231,7 @@
     // iOS home-screen apps from freezing on a stale version.
     if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) {
       navigator.serviceWorker
-        .register("sw.js?v=37", { updateViaCache: "none" })
+        .register("sw.js?v=38", { updateViaCache: "none" })
         .then((reg) => {
           document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === "visible") reg.update().catch(() => {});
