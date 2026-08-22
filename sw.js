@@ -3,7 +3,7 @@
    back to cache instead of hanging. Styles/scripts: served instantly
    from cache while a background fetch refreshes them for the next
    launch. Media and images: cache-first. */
-const VERSION = "wpi-rewards-v39";
+const VERSION = "wpi-rewards-v40";
 const ASSETS = [
   "./",
   "./index.html",
